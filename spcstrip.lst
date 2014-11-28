@@ -1,0 +1,362 @@
+
+Module: D:\source\os2\hdrstrip\spcstrip.cpp
+Group: 'DGROUP' CONST,CONST2,_DATA,_BSS
+
+Segment: _TEXT  PARA USE32  00000233 bytes  
+
+#include <stdio.h>
+
+void stripSpaces(const char *inbuf, char *outbuf) {
+        //find first non-blank in string
+        const char *p=inbuf;
+ 0000                    void near stripSpaces( char const near *, char near * ):
+ 0000  53                                push    ebx
+ 0001  51                                push    ecx
+ 0002  89 d1                             mov     ecx,edx
+
+        while(*p==' ' || *p=='\t')
+ 0004  31 d2             L1              xor     edx,edx
+ 0006  8a 10                             mov     dl,[eax]
+ 0008  83 fa 20                          cmp     edx,00000020H
+ 000b  74 05                             je      L2
+ 000d  83 fa 09                          cmp     edx,00000009H
+ 0010  75 03                             jne     L3
+
+                p++;
+        //find end of string
+ 0012  40                L2              inc     eax
+ 0013  eb ef                             jmp     L1
+
+        const char *endptr=p;
+ 0015  89 c2             L3              mov     edx,eax
+
+        while(*endptr!='\0')
+ 0017  31 db             L4              xor     ebx,ebx
+ 0019  8a 1a                             mov     bl,[edx]
+ 001b  85 db                             test    ebx,ebx
+ 001d  74 03                             je      L5
+
+                endptr++;
+ 001f  42                                inc     edx
+ 0020  eb f5                             jmp     L4
+
+        endptr--;
+        //find last non-blank
+ 0022  4a                L5              dec     edx
+ 0023  39 c2                             cmp     edx,eax
+ 0025  72 18                             jb      L8
+
+        while(endptr>=p && (*endptr==' ' || *endptr=='\t' || *endptr=='\n'))
+ 0027  31 db             L6              xor     ebx,ebx
+ 0029  8a 1a                             mov     bl,[edx]
+ 002b  83 fb 20                          cmp     ebx,00000020H
+ 002e  74 0a                             je      L7
+ 0030  83 fb 09                          cmp     ebx,00000009H
+ 0033  74 05                             je      L7
+ 0035  83 fb 0a                          cmp     ebx,0000000aH
+ 0038  75 05                             jne     L8
+
+                endptr--;
+
+        while(p<=endptr) {
+ 003a  4a                L7              dec     edx
+ 003b  39 c2                             cmp     edx,eax
+ 003d  73 e8                             jae     L6
+ 003f  39 d0             L8              cmp     eax,edx
+ 0041  77 1f                             ja      L10
+
+                if(p[0]==' ' && p[1]==' ')
+ 0043  31 db                             xor     ebx,ebx
+ 0045  8a 18                             mov     bl,[eax]
+ 0047  83 fb 20                          cmp     ebx,00000020H
+ 004a  75 0d                             jne     L9
+ 004c  31 db                             xor     ebx,ebx
+ 004e  8a 58 01                          mov     bl,+1H[eax]
+ 0051  83 fb 20                          cmp     ebx,00000020H
+ 0054  75 03                             jne     L9
+
+                        p++;
+                else
+ 0056  40                                inc     eax
+ 0057  eb e6                             jmp     L8
+ 0059  41                L9              inc     ecx
+
+                        *outbuf++=*p++;
+        }
+ 005a  8a 18                             mov     bl,[eax]
+ 005c  40                                inc     eax
+ 005d  88 59 ff                          mov     -1H[ecx],bl
+ 0060  eb dd                             jmp     L8
+
+        *outbuf++='\n';
+ 0062  c6 01 0a          L10             mov     byte ptr [ecx],0aH
+ 0065  41                                inc     ecx
+
+        *outbuf='\0';
+ 0066  c6 01 00                          mov     byte ptr [ecx],00H
+
+};
+
+ 0069  59                                pop     ecx
+ 006a  5b                                pop     ebx
+ 006b  c3                                ret     
+
+int main(int argc, char *argv[]) {
+        FILE *ifp,*ofp;
+ 006c  53                main_           push    ebx
+ 006d  51                                push    ecx
+ 006e  56                                push    esi
+ 006f  57                                push    edi
+ 0070  55                                push    ebp
+ 0071  81 ec 04 04 00 00                 sub     esp,00000404H
+ 0077  89 d3                             mov     ebx,edx
+
+        if(argc==2 && argv[1][0]=='-' && argv[1][1]=='p' && argv[1][2]=='\0') {
+                //pipe
+ 0079  83 f8 02                          cmp     eax,00000002H
+ 007c  75 23                             jne     L11
+ 007e  8b 52 04                          mov     edx,+4H[edx]
+ 0081  80 3a 2d                          cmp     byte ptr [edx],2dH
+ 0084  75 1b                             jne     L11
+ 0086  80 7a 01 70                       cmp     byte ptr +1H[edx],70H
+ 008a  75 15                             jne     L11
+ 008c  80 7a 02 00                       cmp     byte ptr +2H[edx],00H
+ 0090  75 0f                             jne     L11
+
+                ifp=stdin;
+ 0092  be 00 00 00 00                    mov     esi,offset ___iob
+
+                ofp=stdout;
+ 0097  bf 1a 00 00 00                    mov     edi,offset ___iob+1aH
+
+        } else {
+ 009c  e9 c0 00 00 00                    jmp     L15
+
+                if(argc!=3) {
+ 00a1  83 f8 03          L11             cmp     eax,00000003H
+ 00a4  74 17                             je      L12
+
+                        printf("Usage: spcstrip <infile> <outfile>\n");
+ 00a6  68 00 00 00 00                    push    offset L28
+ 00ab  e8 00 00 00 00                    call    printf_
+
+                        return -1;
+ 00b0  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 00b5  83 c4 04                          add     esp,00000004H
+ 00b8  e9 6a 01 00 00                    jmp     L27
+
+                }
+ 00bd  ba 24 00 00 00    L12             mov     edx,offset L29
+
+                FILE *ifp=fopen(argv[1],"rt");
+ 00c2  8b 43 04                          mov     eax,+4H[ebx]
+ 00c5  e8 00 00 00 00                    call    fopen_
+ 00ca  89 c5                             mov     ebp,eax
+
+                if(!ifp) {
+ 00cc  85 c0                             test    eax,eax
+ 00ce  75 27                             jne     L13
+
+                        fprintf(stderr,"spcstrip: could not open '%s'\n",argv[1]);
+ 00d0  8b 53 04                          mov     edx,+4H[ebx]
+ 00d3  52                                push    edx
+ 00d4  68 27 00 00 00                    push    offset L30
+ 00d9  68 34 00 00 00                    push    offset ___iob+34H
+ 00de  e8 00 00 00 00                    call    fprintf_
+
+                        return -1;
+ 00e3  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 00e8  83 c4 0c                          add     esp,0000000cH
+ 00eb  81 c4 04 04 00 00                 add     esp,00000404H
+ 00f1  5d                                pop     ebp
+ 00f2  5f                                pop     edi
+ 00f3  5e                                pop     esi
+ 00f4  59                                pop     ecx
+ 00f5  5b                                pop     ebx
+ 00f6  c3                                ret     
+
+                }
+ 00f7  ba 46 00 00 00    L13             mov     edx,offset L31
+
+                FILE *ofp=fopen(argv[2],"wt");
+ 00fc  8b 43 08                          mov     eax,+8H[ebx]
+ 00ff  e8 00 00 00 00                    call    fopen_
+ 0104  89 84 24 00 04 00 
+       00                                mov     +400H[esp],eax
+
+                if(!ofp) {
+ 010b  85 c0                             test    eax,eax
+ 010d  75 27                             jne     L14
+
+                        fprintf(stderr,"spcstrip: could not create '%s'\n",argv[2]);
+ 010f  8b 73 08                          mov     esi,+8H[ebx]
+ 0112  56                                push    esi
+ 0113  68 49 00 00 00                    push    offset L32
+ 0118  68 34 00 00 00                    push    offset ___iob+34H
+ 011d  e8 00 00 00 00                    call    fprintf_
+
+                        return -1;
+                }
+
+ 0122  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 0127  83 c4 0c                          add     esp,0000000cH
+ 012a  81 c4 04 04 00 00                 add     esp,00000404H
+ 0130  5d                                pop     ebp
+ 0131  5f                                pop     edi
+ 0132  5e                                pop     esi
+ 0133  59                                pop     ecx
+ 0134  5b                                pop     ebx
+ 0135  c3                                ret     
+
+                setvbuf(ifp,NULL,_IOFBF,4096);
+ 0136  b9 00 10 00 00    L14             mov     ecx,00001000H
+ 013b  bb 00 01 00 00                    mov     ebx,00000100H
+ 0140  89 e8                             mov     eax,ebp
+ 0142  31 d2                             xor     edx,edx
+ 0144  e8 00 00 00 00                    call    setvbuf_
+
+                setvbuf(ofp,NULL,_IOFBF,4096);
+ 0149  b9 00 10 00 00                    mov     ecx,00001000H
+ 014e  bb 00 01 00 00                    mov     ebx,00000100H
+ 0153  8b 84 24 00 04 00 
+       00                                mov     eax,+400H[esp]
+ 015a  31 d2                             xor     edx,edx
+ 015c  e8 00 00 00 00                    call    setvbuf_
+
+        }
+
+        char oldLine[512];
+        char newLine[512];
+        while(fgets(oldLine,512,ifp)) {
+ 0161  ba 00 02 00 00    L15             mov     edx,00000200H
+ 0166  89 e0                             mov     eax,esp
+ 0168  89 f3                             mov     ebx,esi
+ 016a  e8 00 00 00 00                    call    fgets_
+ 016f  85 c0                             test    eax,eax
+ 0171  0f 84 8f 00 00 00                 je      L26
+
+                stripSpaces(oldLine,newLine);
+ 0177  8d 8c 24 00 02 00 
+       00                                lea     ecx,+200H[esp]
+ 017e  89 e0                             mov     eax,esp
+ 0180  31 d2             L16             xor     edx,edx
+ 0182  8a 10                             mov     dl,[eax]
+ 0184  83 fa 20                          cmp     edx,00000020H
+ 0187  74 05                             je      L17
+ 0189  83 fa 09                          cmp     edx,00000009H
+ 018c  75 03                             jne     L18
+ 018e  40                L17             inc     eax
+ 018f  eb ef                             jmp     L16
+ 0191  89 c2             L18             mov     edx,eax
+ 0193  31 db             L19             xor     ebx,ebx
+ 0195  8a 1a                             mov     bl,[edx]
+ 0197  85 db                             test    ebx,ebx
+ 0199  74 03                             je      L20
+ 019b  42                                inc     edx
+ 019c  eb f5                             jmp     L19
+ 019e  4a                L20             dec     edx
+ 019f  39 c2                             cmp     edx,eax
+ 01a1  72 18                             jb      L23
+ 01a3  31 db             L21             xor     ebx,ebx
+ 01a5  8a 1a                             mov     bl,[edx]
+ 01a7  83 fb 20                          cmp     ebx,00000020H
+ 01aa  74 0a                             je      L22
+ 01ac  83 fb 09                          cmp     ebx,00000009H
+ 01af  74 05                             je      L22
+ 01b1  83 fb 0a                          cmp     ebx,0000000aH
+ 01b4  75 05                             jne     L23
+ 01b6  4a                L22             dec     edx
+ 01b7  39 c2                             cmp     edx,eax
+ 01b9  73 e8                             jae     L21
+ 01bb  39 d0             L23             cmp     eax,edx
+ 01bd  77 1f                             ja      L25
+ 01bf  31 db                             xor     ebx,ebx
+ 01c1  8a 18                             mov     bl,[eax]
+ 01c3  83 fb 20                          cmp     ebx,00000020H
+ 01c6  75 0d                             jne     L24
+ 01c8  31 db                             xor     ebx,ebx
+ 01ca  8a 58 01                          mov     bl,+1H[eax]
+ 01cd  83 fb 20                          cmp     ebx,00000020H
+ 01d0  75 03                             jne     L24
+ 01d2  40                                inc     eax
+ 01d3  eb e6                             jmp     L23
+ 01d5  41                L24             inc     ecx
+ 01d6  8a 18                             mov     bl,[eax]
+ 01d8  40                                inc     eax
+ 01d9  88 59 ff                          mov     -1H[ecx],bl
+ 01dc  eb dd                             jmp     L23
+ 01de  c6 01 0a          L25             mov     byte ptr [ecx],0aH
+ 01e1  41                                inc     ecx
+ 01e2  c6 01 00                          mov     byte ptr [ecx],00H
+
+                if(newLine[0]!='\n')    //only non-empty lines will be output
+ 01e5  80 bc 24 00 02 00 
+       00 0a                             cmp     byte ptr +200H[esp],0aH
+ 01ed  0f 84 6e ff ff ff                 je      L15
+ 01f3  8d 84 24 00 02 00 
+       00                                lea     eax,+200H[esp]
+
+                        fputs(newLine,ofp);
+        }
+
+ 01fa  89 fa                             mov     edx,edi
+ 01fc  e8 00 00 00 00                    call    fputs_
+ 0201  e9 5b ff ff ff                    jmp     L15
+
+        fclose(ifp);
+ 0206  89 f0             L26             mov     eax,esi
+ 0208  e8 00 00 00 00                    call    fclose_
+
+        if(fclose(ofp)) {
+ 020d  89 f8                             mov     eax,edi
+ 020f  e8 00 00 00 00                    call    fclose_
+ 0214  85 c0                             test    eax,eax
+ 0216  74 0f                             je      L27
+
+                perror("spcstrip");
+ 0218  b8 6a 00 00 00                    mov     eax,offset L33
+ 021d  e8 00 00 00 00                    call    perror_
+
+                return -1;
+        }
+
+        return 0;
+ 0222  b8 ff ff ff ff                    mov     eax,0ffffffffH
+
+}
+
+ 0227  81 c4 04 04 00 00 L27             add     esp,00000404H
+ 022d  5d                                pop     ebp
+ 022e  5f                                pop     edi
+ 022f  5e                                pop     esi
+ 0230  59                                pop     ecx
+ 0231  5b                                pop     ebx
+ 0232  c3                                ret     
+
+No disassembly errors
+
+------------------------------------------------------------
+
+Segment: CONST  DWORD USE32  00000073 bytes  
+ 0000  55 73 61 67 65 3a 20 73 L28             - Usage: s
+ 0008  70 63 73 74 72 69 70 20                 - pcstrip 
+ 0010  3c 69 6e 66 69 6c 65 3e                 - <infile>
+ 0018  20 3c 6f 75 74 66 69 6c                 -  <outfil
+ 0020  65 3e 0a 00                             - e>..
+ 0024  72 74 00                L29             - rt.
+ 0027  73 70 63 73 74 72 69 70 L30             - spcstrip
+ 002f  3a 20 63 6f 75 6c 64 20                 - : could 
+ 0037  6e 6f 74 20 6f 70 65 6e                 - not open
+ 003f  20 27 25 73 27 0a 00                    -  '%s'..
+ 0046  77 74 00                L31             - wt.
+ 0049  73 70 63 73 74 72 69 70 L32             - spcstrip
+ 0051  3a 20 63 6f 75 6c 64 20                 - : could 
+ 0059  6e 6f 74 20 63 72 65 61                 - not crea
+ 0061  74 65 20 27 25 73 27 0a                 - te '%s'.
+ 0069  00                                      - .
+ 006a  73 70 63 73 74 72 69 70 L33             - spcstrip
+ 0072  00                                      - .
+
+No disassembly errors
+
+------------------------------------------------------------

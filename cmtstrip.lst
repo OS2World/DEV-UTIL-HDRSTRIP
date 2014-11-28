@@ -1,0 +1,840 @@
+
+Module: D:\source\os2\hdrstrip\cmtstrip.cpp
+Group: 'DGROUP' CONST,CONST2,_DATA,_BSS
+
+Segment: _TEXT  PARA USE32  000007db bytes  
+
+#include <stdio.h>
+#include <stdlib.h>
+
+FILE *ifp,*ofp;
+
+int cmtgetchar() {
+        for(;;) {
+ 0000                    int near cmtgetchar():
+ 0000  53                                push    ebx
+ 0001  52                                push    edx
+ 0002  57                                push    edi
+ 0003  55                                push    ebp
+ 0004  bd 04 00 00 00                    mov     ebp,00000004H
+ 0009  31 ff                             xor     edi,edi
+
+                int c=getc(ifp);
+ 000b  a1 00 00 00 00    L1              mov     eax,__iobuf near * near ifp
+ 0010  3b 78 04                          cmp     edi,+4H[eax]
+ 0013  7d 19                             jge     L2
+ 0015  85 68 0c                          test    +0cH[eax],ebp
+ 0018  75 14                             jne     L2
+ 001a  8b 10                             mov     edx,[eax]
+ 001c  8a 12                             mov     dl,[edx]
+ 001e  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 0024  83 fa 0d                          cmp     edx,0000000dH
+ 0027  74 05                             je      L2
+ 0029  83 fa 1a                          cmp     edx,0000001aH
+ 002c  75 0c                             jne     L3
+ 002e  a1 00 00 00 00    L2              mov     eax,__iobuf near * near ifp
+ 0033  e8 00 00 00 00                    call    fgetc_
+ 0038  eb 0e                             jmp     L4
+ 003a  ff 48 04          L3              dec     dword ptr +4H[eax]
+ 003d  8b 10                             mov     edx,[eax]
+ 003f  8d 5a 01                          lea     ebx,+1H[edx]
+ 0042  89 18                             mov     [eax],ebx
+ 0044  31 c0                             xor     eax,eax
+ 0046  8a 02                             mov     al,[edx]
+
+                if(c==EOF) return EOF;
+ 0048  83 f8 ff          L4              cmp     eax,0ffffffffH
+ 004b  0f 84 6d 01 00 00                 je      L20
+
+                if(c=='/') {
+                        //could be a comment
+ 0051  83 f8 2f                          cmp     eax,0000002fH
+ 0054  0f 85 64 01 00 00                 jne     L20
+
+                        c=getc(ifp);
+ 005a  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 005f  8b 58 04                          mov     ebx,+4H[eax]
+ 0062  39 df                             cmp     edi,ebx
+ 0064  7d 19                             jge     L5
+ 0066  85 68 0c                          test    +0cH[eax],ebp
+ 0069  75 14                             jne     L5
+ 006b  8b 10                             mov     edx,[eax]
+ 006d  8a 12                             mov     dl,[edx]
+ 006f  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 0075  83 fa 0d                          cmp     edx,0000000dH
+ 0078  74 05                             je      L5
+ 007a  83 fa 1a                          cmp     edx,0000001aH
+ 007d  75 0e                             jne     L6
+ 007f  a1 00 00 00 00    L5              mov     eax,__iobuf near * near ifp
+ 0084  e8 00 00 00 00                    call    fgetc_
+ 0089  89 c3                             mov     ebx,eax
+ 008b  eb 13                             jmp     L7
+ 008d  4b                L6              dec     ebx
+ 008e  89 58 04                          mov     +4H[eax],ebx
+ 0091  8b 18                             mov     ebx,[eax]
+ 0093  8d 53 01                          lea     edx,+1H[ebx]
+ 0096  89 10                             mov     [eax],edx
+ 0098  8a 1b                             mov     bl,[ebx]
+ 009a  81 e3 ff 00 00 00                 and     ebx,000000ffH
+ 00a0  89 d8             L7              mov     eax,ebx
+
+                        if(c=='/') {
+                                //C++ style comment
+ 00a2  83 fb 2f                          cmp     ebx,0000002fH
+ 00a5  75 51                             jne     L11
+ 00a7  83 f8 ff          L8              cmp     eax,0ffffffffH
+ 00aa  0f 84 5b ff ff ff                 je      L1
+
+                                while(c!=EOF && c!='\n') {
+ 00b0  83 f8 0a                          cmp     eax,0000000aH
+ 00b3  0f 84 52 ff ff ff                 je      L1
+
+                                        c=getc(ifp);
+ 00b9  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 00be  3b 78 04                          cmp     edi,+4H[eax]
+ 00c1  7d 19                             jge     L9
+ 00c3  85 68 0c                          test    +0cH[eax],ebp
+ 00c6  75 14                             jne     L9
+ 00c8  8b 10                             mov     edx,[eax]
+ 00ca  8a 12                             mov     dl,[edx]
+ 00cc  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 00d2  83 fa 0d                          cmp     edx,0000000dH
+ 00d5  74 05                             je      L9
+ 00d7  83 fa 1a                          cmp     edx,0000001aH
+ 00da  75 0c                             jne     L10
+ 00dc  a1 00 00 00 00    L9              mov     eax,__iobuf near * near ifp
+ 00e1  e8 00 00 00 00                    call    fgetc_
+ 00e6  eb bf                             jmp     L8
+ 00e8  ff 48 04          L10             dec     dword ptr +4H[eax]
+ 00eb  8b 10                             mov     edx,[eax]
+ 00ed  8d 5a 01                          lea     ebx,+1H[edx]
+ 00f0  89 18                             mov     [eax],ebx
+ 00f2  31 c0                             xor     eax,eax
+ 00f4  8a 02                             mov     al,[edx]
+
+                                }
+ 00f6  eb af                             jmp     L8
+
+                        } else if(c=='*') {
+                                //C style comment
+                                for(;;) {
+ 00f8  83 fb 2a          L11             cmp     ebx,0000002aH
+ 00fb  0f 85 ad 00 00 00                 jne     L19
+
+ 0101  a1 00 00 00 00    L12             mov     eax,__iobuf near * near ifp
+ 0106  83 78 04 00                       cmp     dword ptr +4H[eax],00000000H
+ 010a  7e 1a                             jle     L13
+
+                                        c=getc(ifp);
+ 010c  f6 40 0c 04                       test    byte ptr +0cH[eax],04H
+ 0110  75 14                             jne     L13
+ 0112  8b 10                             mov     edx,[eax]
+ 0114  8a 12                             mov     dl,[edx]
+ 0116  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 011c  83 fa 0d                          cmp     edx,0000000dH
+ 011f  74 05                             je      L13
+ 0121  83 fa 1a                          cmp     edx,0000001aH
+ 0124  75 0c                             jne     L14
+ 0126  a1 00 00 00 00    L13             mov     eax,__iobuf near * near ifp
+ 012b  e8 00 00 00 00                    call    fgetc_
+ 0130  eb 12                             jmp     L15
+ 0132  8b 58 04          L14             mov     ebx,+4H[eax]
+ 0135  4b                                dec     ebx
+ 0136  8b 10                             mov     edx,[eax]
+ 0138  89 58 04                          mov     +4H[eax],ebx
+ 013b  8d 5a 01                          lea     ebx,+1H[edx]
+ 013e  89 18                             mov     [eax],ebx
+ 0140  31 c0                             xor     eax,eax
+ 0142  8a 02                             mov     al,[edx]
+
+                                        if(c==EOF) return EOF;  //premature eof
+ 0144  83 f8 ff          L15             cmp     eax,0ffffffffH
+ 0147  0f 84 71 00 00 00                 je      L20
+
+                                        if(c=='*') {
+                                                //could be end of comment
+ 014d  83 f8 2a                          cmp     eax,0000002aH
+ 0150  75 af                             jne     L12
+
+                                                c=getc(ifp);
+ 0152  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 0157  83 78 04 00                       cmp     dword ptr +4H[eax],00000000H
+ 015b  7e 1a                             jle     L16
+ 015d  f6 40 0c 04                       test    byte ptr +0cH[eax],04H
+ 0161  75 14                             jne     L16
+ 0163  8b 10                             mov     edx,[eax]
+ 0165  8a 12                             mov     dl,[edx]
+ 0167  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 016d  83 fa 0d                          cmp     edx,0000000dH
+ 0170  74 05                             je      L16
+ 0172  83 fa 1a                          cmp     edx,0000001aH
+ 0175  75 0c                             jne     L17
+ 0177  a1 00 00 00 00    L16             mov     eax,__iobuf near * near ifp
+ 017c  e8 00 00 00 00                    call    fgetc_
+ 0181  eb 12                             jmp     L18
+ 0183  8b 58 04          L17             mov     ebx,+4H[eax]
+ 0186  4b                                dec     ebx
+ 0187  8b 10                             mov     edx,[eax]
+ 0189  89 58 04                          mov     +4H[eax],ebx
+ 018c  8d 5a 01                          lea     ebx,+1H[edx]
+ 018f  89 18                             mov     [eax],ebx
+ 0191  31 c0                             xor     eax,eax
+ 0193  8a 02                             mov     al,[edx]
+
+                                                if(c=='/') {
+                                                        //yes, end of comment
+                                                        break;
+                                                } else {
+                                                        //no
+ 0195  83 f8 2f          L18             cmp     eax,0000002fH
+ 0198  0f 84 6d fe ff ff                 je      L1
+
+                                                        ungetc(c,ifp);
+                                                }
+ 019e  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ifp
+ 01a4  e8 00 00 00 00                    call    ungetc_
+
+                                        }
+                                } 
+                        } else {
+                                //not a comment
+ 01a9  e9 53 ff ff ff                    jmp     L12
+
+                                ungetc(c,ifp);
+ 01ae  8b 15 00 00 00 00 L19             mov     edx,__iobuf near * near ifp
+ 01b4  e8 00 00 00 00                    call    ungetc_
+
+                                return '/';
+                        }
+                } else
+                        return c;
+        }
+ 01b9  b8 2f 00 00 00                    mov     eax,0000002fH
+
+}
+
+ 01be  5d                L20             pop     ebp
+ 01bf  5f                                pop     edi
+ 01c0  5a                                pop     edx
+ 01c1  5b                                pop     ebx
+ 01c2  c3                                ret     
+ 01c3  90                                nop     
+
+void stripComments() {
+        int c;
+ 01c4                    void near stripComments():
+ 01c4  53                                push    ebx
+ 01c5  51                                push    ecx
+ 01c6  52                                push    edx
+ 01c7  56                                push    esi
+ 01c8  55                                push    ebp
+ 01c9  be 04 00 00 00                    mov     esi,00000004H
+ 01ce  b9 ff ff ff ff                    mov     ecx,0ffffffffH
+ 01d3  31 ed                             xor     ebp,ebp
+
+        while((c=cmtgetchar())!=EOF) {
+ 01d5  a1 00 00 00 00    L21             mov     eax,__iobuf near * near ifp
+ 01da  3b 68 04                          cmp     ebp,+4H[eax]
+ 01dd  7d 19                             jge     L22
+ 01df  85 70 0c                          test    +0cH[eax],esi
+ 01e2  75 14                             jne     L22
+ 01e4  8b 10                             mov     edx,[eax]
+ 01e6  8a 12                             mov     dl,[edx]
+ 01e8  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 01ee  83 fa 0d                          cmp     edx,0000000dH
+ 01f1  74 05                             je      L22
+ 01f3  83 fa 1a                          cmp     edx,0000001aH
+ 01f6  75 0c                             jne     L23
+ 01f8  a1 00 00 00 00    L22             mov     eax,__iobuf near * near ifp
+ 01fd  e8 00 00 00 00                    call    fgetc_
+ 0202  eb 0e                             jmp     L24
+ 0204  ff 48 04          L23             dec     dword ptr +4H[eax]
+ 0207  8b 10                             mov     edx,[eax]
+ 0209  8d 5a 01                          lea     ebx,+1H[edx]
+ 020c  89 18                             mov     [eax],ebx
+ 020e  31 c0                             xor     eax,eax
+ 0210  8a 02                             mov     al,[edx]
+ 0212  83 f8 ff          L24             cmp     eax,0ffffffffH
+ 0215  75 07                             jne     L25
+ 0217  89 c8                             mov     eax,ecx
+ 0219  e9 70 01 00 00                    jmp     L42
+ 021e  83 f8 2f          L25             cmp     eax,0000002fH
+ 0221  0f 85 67 01 00 00                 jne     L42
+ 0227  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 022c  8b 58 04                          mov     ebx,+4H[eax]
+ 022f  39 dd                             cmp     ebp,ebx
+ 0231  7d 19                             jge     L26
+ 0233  85 70 0c                          test    +0cH[eax],esi
+ 0236  75 14                             jne     L26
+ 0238  8b 10                             mov     edx,[eax]
+ 023a  8a 12                             mov     dl,[edx]
+ 023c  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 0242  83 fa 0d                          cmp     edx,0000000dH
+ 0245  74 05                             je      L26
+ 0247  83 fa 1a                          cmp     edx,0000001aH
+ 024a  75 0e                             jne     L27
+ 024c  a1 00 00 00 00    L26             mov     eax,__iobuf near * near ifp
+ 0251  e8 00 00 00 00                    call    fgetc_
+ 0256  89 c3                             mov     ebx,eax
+ 0258  eb 13                             jmp     L28
+ 025a  4b                L27             dec     ebx
+ 025b  89 58 04                          mov     +4H[eax],ebx
+ 025e  8b 18                             mov     ebx,[eax]
+ 0260  8d 53 01                          lea     edx,+1H[ebx]
+ 0263  89 10                             mov     [eax],edx
+ 0265  8a 1b                             mov     bl,[ebx]
+ 0267  81 e3 ff 00 00 00                 and     ebx,000000ffH
+ 026d  89 d8             L28             mov     eax,ebx
+ 026f  83 fb 2f                          cmp     ebx,0000002fH
+ 0272  75 51                             jne     L32
+ 0274  83 f8 ff          L29             cmp     eax,0ffffffffH
+ 0277  0f 84 58 ff ff ff                 je      L21
+ 027d  83 f8 0a                          cmp     eax,0000000aH
+ 0280  0f 84 4f ff ff ff                 je      L21
+ 0286  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 028b  3b 68 04                          cmp     ebp,+4H[eax]
+ 028e  7d 19                             jge     L30
+ 0290  85 70 0c                          test    +0cH[eax],esi
+ 0293  75 14                             jne     L30
+ 0295  8b 10                             mov     edx,[eax]
+ 0297  8a 12                             mov     dl,[edx]
+ 0299  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 029f  83 fa 0d                          cmp     edx,0000000dH
+ 02a2  74 05                             je      L30
+ 02a4  83 fa 1a                          cmp     edx,0000001aH
+ 02a7  75 0c                             jne     L31
+ 02a9  a1 00 00 00 00    L30             mov     eax,__iobuf near * near ifp
+ 02ae  e8 00 00 00 00                    call    fgetc_
+ 02b3  eb bf                             jmp     L29
+ 02b5  ff 48 04          L31             dec     dword ptr +4H[eax]
+ 02b8  8b 10                             mov     edx,[eax]
+ 02ba  8d 5a 01                          lea     ebx,+1H[edx]
+ 02bd  89 18                             mov     [eax],ebx
+ 02bf  31 c0                             xor     eax,eax
+ 02c1  8a 02                             mov     al,[edx]
+ 02c3  eb af                             jmp     L29
+ 02c5  83 fb 2a          L32             cmp     ebx,0000002aH
+ 02c8  0f 85 b0 00 00 00                 jne     L41
+ 02ce  a1 00 00 00 00    L33             mov     eax,__iobuf near * near ifp
+ 02d3  83 78 04 00                       cmp     dword ptr +4H[eax],00000000H
+ 02d7  7e 1a                             jle     L34
+ 02d9  f6 40 0c 04                       test    byte ptr +0cH[eax],04H
+ 02dd  75 14                             jne     L34
+ 02df  8b 10                             mov     edx,[eax]
+ 02e1  8a 12                             mov     dl,[edx]
+ 02e3  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 02e9  83 fa 0d                          cmp     edx,0000000dH
+ 02ec  74 05                             je      L34
+ 02ee  83 fa 1a                          cmp     edx,0000001aH
+ 02f1  75 0c                             jne     L35
+ 02f3  a1 00 00 00 00    L34             mov     eax,__iobuf near * near ifp
+ 02f8  e8 00 00 00 00                    call    fgetc_
+ 02fd  eb 12                             jmp     L36
+ 02ff  8b 58 04          L35             mov     ebx,+4H[eax]
+ 0302  4b                                dec     ebx
+ 0303  8b 10                             mov     edx,[eax]
+ 0305  89 58 04                          mov     +4H[eax],ebx
+ 0308  8d 5a 01                          lea     ebx,+1H[edx]
+ 030b  89 18                             mov     [eax],ebx
+ 030d  31 c0                             xor     eax,eax
+ 030f  8a 02                             mov     al,[edx]
+ 0311  83 f8 ff          L36             cmp     eax,0ffffffffH
+ 0314  75 07                             jne     L37
+ 0316  89 c8                             mov     eax,ecx
+ 0318  e9 71 00 00 00                    jmp     L42
+ 031d  83 f8 2a          L37             cmp     eax,0000002aH
+ 0320  75 ac                             jne     L33
+ 0322  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 0327  83 78 04 00                       cmp     dword ptr +4H[eax],00000000H
+ 032b  7e 1a                             jle     L38
+ 032d  f6 40 0c 04                       test    byte ptr +0cH[eax],04H
+ 0331  75 14                             jne     L38
+ 0333  8b 10                             mov     edx,[eax]
+ 0335  8a 12                             mov     dl,[edx]
+ 0337  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 033d  83 fa 0d                          cmp     edx,0000000dH
+ 0340  74 05                             je      L38
+ 0342  83 fa 1a                          cmp     edx,0000001aH
+ 0345  75 0c                             jne     L39
+ 0347  a1 00 00 00 00    L38             mov     eax,__iobuf near * near ifp
+ 034c  e8 00 00 00 00                    call    fgetc_
+ 0351  eb 12                             jmp     L40
+ 0353  8b 58 04          L39             mov     ebx,+4H[eax]
+ 0356  4b                                dec     ebx
+ 0357  8b 10                             mov     edx,[eax]
+ 0359  89 58 04                          mov     +4H[eax],ebx
+ 035c  8d 5a 01                          lea     ebx,+1H[edx]
+ 035f  89 18                             mov     [eax],ebx
+ 0361  31 c0                             xor     eax,eax
+ 0363  8a 02                             mov     al,[edx]
+ 0365  83 f8 2f          L40             cmp     eax,0000002fH
+ 0368  0f 84 67 fe ff ff                 je      L21
+ 036e  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ifp
+ 0374  e8 00 00 00 00                    call    ungetc_
+ 0379  e9 50 ff ff ff                    jmp     L33
+ 037e  8b 15 00 00 00 00 L41             mov     edx,__iobuf near * near ifp
+ 0384  e8 00 00 00 00                    call    ungetc_
+ 0389  b8 2f 00 00 00                    mov     eax,0000002fH
+ 038e  89 c3             L42             mov     ebx,eax
+ 0390  83 f8 ff                          cmp     eax,0ffffffffH
+ 0393  0f 84 8e 00 00 00                 je      L47
+
+                if(putc(c,ofp)==EOF) {
+ 0399  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 039f  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 03a3  75 0b                             jne     L43
+ 03a5  8b 42 14                          mov     eax,+14H[edx]
+ 03a8  2b 42 04                          sub     eax,+4H[edx]
+ 03ab  83 f8 01                          cmp     eax,00000001H
+ 03ae  77 0f                             ja      L44
+ 03b0  8b 15 00 00 00 00 L43             mov     edx,__iobuf near * near ofp
+ 03b6  89 d8                             mov     eax,ebx
+ 03b8  e8 00 00 00 00                    call    fputc_
+ 03bd  eb 37                             jmp     L46
+ 03bf  8b 02             L44             mov     eax,[edx]
+ 03c1  88 18                             mov     [eax],bl
+ 03c3  8b 02                             mov     eax,[edx]
+ 03c5  8a 00                             mov     al,[eax]
+ 03c7  25 ff 00 00 00                    and     eax,000000ffH
+ 03cc  83 f8 0a                          cmp     eax,0000000aH
+ 03cf  75 07                             jne     L45
+ 03d1  e8 00 00 00 00                    call    fputc_
+ 03d6  eb 1e                             jmp     L46
+ 03d8  8a 62 0d          L45             mov     ah,+0dH[edx]
+ 03db  80 cc 10                          or      ah,10H
+ 03de  8b 5a 04                          mov     ebx,+4H[edx]
+ 03e1  88 62 0d                          mov     +0dH[edx],ah
+ 03e4  43                                inc     ebx
+ 03e5  8b 02                             mov     eax,[edx]
+ 03e7  89 5a 04                          mov     +4H[edx],ebx
+ 03ea  8d 58 01                          lea     ebx,+1H[eax]
+ 03ed  89 1a                             mov     [edx],ebx
+ 03ef  8a 00                             mov     al,[eax]
+ 03f1  25 ff 00 00 00                    and     eax,000000ffH
+ 03f6  83 f8 ff          L46             cmp     eax,0ffffffffH
+ 03f9  0f 85 d6 fd ff ff                 jne     L21
+
+                        fprintf(stderr,"cmtstrip: could not write to output\n");
+ 03ff  68 00 00 00 00                    push    offset L81
+ 0404  68 34 00 00 00                    push    offset ___iob+34H
+ 0409  e8 00 00 00 00                    call    fprintf_
+ 040e  83 c4 08                          add     esp,00000008H
+
+                        perror("cmtstrip");
+ 0411  b8 25 00 00 00                    mov     eax,offset L82
+ 0416  e8 00 00 00 00                    call    perror_
+
+                        exit(4);
+ 041b  89 f0                             mov     eax,esi
+ 041d  e8 00 00 00 00                    call    exit_
+
+                }
+        }
+ 0422  e9 ae fd ff ff                    jmp     L21
+
+}
+
+ 0427  5d                L47             pop     ebp
+ 0428  5e                                pop     esi
+ 0429  5a                                pop     edx
+ 042a  59                                pop     ecx
+ 042b  5b                                pop     ebx
+ 042c  c3                                ret     
+ 042d  8d 40 00                          lea     eax,+0H[eax]
+
+void main(int argc, char *argv[]) {
+ 0430  53                main_           push    ebx
+ 0431  51                                push    ecx
+ 0432  56                                push    esi
+ 0433  57                                push    edi
+ 0434  55                                push    ebp
+ 0435  89 c1                             mov     ecx,eax
+ 0437  89 d3                             mov     ebx,edx
+
+        if(argc==2 && argv[1][0]=='-' && argv[1][1]=='p' && argv[1][2]=='\0') {
+                //pipe
+ 0439  83 f8 02                          cmp     eax,00000002H
+ 043c  75 2f                             jne     L48
+ 043e  8b 42 04                          mov     eax,+4H[edx]
+ 0441  80 38 2d                          cmp     byte ptr [eax],2dH
+ 0444  75 27                             jne     L48
+ 0446  80 78 01 70                       cmp     byte ptr +1H[eax],70H
+ 044a  75 21                             jne     L48
+ 044c  80 78 02 00                       cmp     byte ptr +2H[eax],00H
+ 0450  75 1b                             jne     L48
+
+                ifp=stdin;
+ 0452  be 00 00 00 00                    mov     esi,offset ___iob
+
+                ofp=stdout;
+ 0457  bf 1a 00 00 00                    mov     edi,offset ___iob+1aH
+ 045c  89 35 00 00 00 00                 mov     __iobuf near * near ifp,esi
+ 0462  89 3d 00 00 00 00                 mov     __iobuf near * near ofp,edi
+
+        } else {
+ 0468  e9 b9 00 00 00                    jmp     L52
+
+                if(argc!=3) {
+ 046d  83 f9 03          L48             cmp     ecx,00000003H
+ 0470  74 1c                             je      L49
+
+                        fprintf(stderr,"Usage: cmtstrip <infile> <outfile>\n");
+ 0472  68 2e 00 00 00                    push    offset L83
+ 0477  68 34 00 00 00                    push    offset ___iob+34H
+ 047c  e8 00 00 00 00                    call    fprintf_
+ 0481  83 c4 08                          add     esp,00000008H
+
+                        exit(1);
+ 0484  b8 01 00 00 00                    mov     eax,00000001H
+ 0489  e8 00 00 00 00                    call    exit_
+
+                }
+ 048e  ba 52 00 00 00    L49             mov     edx,offset L84
+
+                ifp=fopen(argv[1],"rt");
+ 0493  8b 43 04                          mov     eax,+4H[ebx]
+ 0496  e8 00 00 00 00                    call    fopen_
+ 049b  a3 00 00 00 00                    mov     __iobuf near * near ifp,eax
+
+                if(!ifp) {
+ 04a0  85 c0                             test    eax,eax
+ 04a2  75 20                             jne     L50
+
+                        fprintf(stderr,"cmtstrip: could not open '%s'\n",argv[1]);
+ 04a4  8b 53 04                          mov     edx,+4H[ebx]
+ 04a7  52                                push    edx
+ 04a8  68 55 00 00 00                    push    offset L85
+ 04ad  68 34 00 00 00                    push    offset ___iob+34H
+ 04b2  e8 00 00 00 00                    call    fprintf_
+ 04b7  83 c4 0c                          add     esp,0000000cH
+
+                        exit(2);
+ 04ba  b8 02 00 00 00                    mov     eax,00000002H
+ 04bf  e8 00 00 00 00                    call    exit_
+
+                }
+ 04c4  ba 74 00 00 00    L50             mov     edx,offset L86
+
+                ofp=fopen(argv[2],"wt");
+ 04c9  8b 43 08                          mov     eax,+8H[ebx]
+ 04cc  e8 00 00 00 00                    call    fopen_
+ 04d1  a3 00 00 00 00                    mov     __iobuf near * near ofp,eax
+
+                if(!ofp) {
+ 04d6  85 c0                             test    eax,eax
+ 04d8  75 20                             jne     L51
+
+                        fprintf(stderr,"cmtstrip: could not create '%s'\n",argv[2]);
+ 04da  8b 4b 08                          mov     ecx,+8H[ebx]
+ 04dd  51                                push    ecx
+ 04de  68 77 00 00 00                    push    offset L87
+ 04e3  68 34 00 00 00                    push    offset ___iob+34H
+ 04e8  e8 00 00 00 00                    call    fprintf_
+ 04ed  83 c4 0c                          add     esp,0000000cH
+
+                        exit(3);
+ 04f0  b8 03 00 00 00                    mov     eax,00000003H
+ 04f5  e8 00 00 00 00                    call    exit_
+
+                }
+
+ 04fa  b9 00 10 00 00    L51             mov     ecx,00001000H
+ 04ff  bb 00 01 00 00                    mov     ebx,00000100H
+
+                setvbuf(ifp,NULL,_IOFBF,4096);
+ 0504  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 0509  31 d2                             xor     edx,edx
+ 050b  e8 00 00 00 00                    call    setvbuf_
+ 0510  b9 00 10 00 00                    mov     ecx,00001000H
+ 0515  bb 00 01 00 00                    mov     ebx,00000100H
+
+                setvbuf(ofp,NULL,_IOFBF,4096);
+ 051a  a1 00 00 00 00                    mov     eax,__iobuf near * near ofp
+ 051f  31 d2                             xor     edx,edx
+ 0521  e8 00 00 00 00                    call    setvbuf_
+
+        }
+
+ 0526  bd 2f 00 00 00    L52             mov     ebp,0000002fH
+ 052b  be ff ff ff ff                    mov     esi,0ffffffffH
+ 0530  bf 04 00 00 00                    mov     edi,00000004H
+ 0535  a1 00 00 00 00    L53             mov     eax,__iobuf near * near ifp
+ 053a  83 78 04 00                       cmp     dword ptr +4H[eax],00000000H
+ 053e  7e 19                             jle     L54
+
+        stripComments();
+
+ 0540  85 78 0c                          test    +0cH[eax],edi
+ 0543  75 14                             jne     L54
+ 0545  8b 10                             mov     edx,[eax]
+ 0547  8a 12                             mov     dl,[edx]
+ 0549  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 054f  83 fa 0d                          cmp     edx,0000000dH
+ 0552  74 05                             je      L54
+ 0554  83 fa 1a                          cmp     edx,0000001aH
+ 0557  75 0c                             jne     L55
+ 0559  a1 00 00 00 00    L54             mov     eax,__iobuf near * near ifp
+ 055e  e8 00 00 00 00                    call    fgetc_
+ 0563  eb 12                             jmp     L56
+ 0565  8b 48 04          L55             mov     ecx,+4H[eax]
+ 0568  8b 10                             mov     edx,[eax]
+ 056a  49                                dec     ecx
+ 056b  8d 5a 01                          lea     ebx,+1H[edx]
+ 056e  89 48 04                          mov     +4H[eax],ecx
+ 0571  89 18                             mov     [eax],ebx
+ 0573  31 c0                             xor     eax,eax
+ 0575  8a 02                             mov     al,[edx]
+ 0577  83 f8 ff          L56             cmp     eax,0ffffffffH
+ 057a  75 07                             jne     L57
+ 057c  89 f0                             mov     eax,esi
+ 057e  e9 74 01 00 00                    jmp     L74
+ 0583  83 f8 2f          L57             cmp     eax,0000002fH
+ 0586  0f 85 6b 01 00 00                 jne     L74
+ 058c  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 0591  83 78 04 00                       cmp     dword ptr +4H[eax],00000000H
+ 0595  7e 19                             jle     L58
+ 0597  85 78 0c                          test    +0cH[eax],edi
+ 059a  75 14                             jne     L58
+ 059c  8b 10                             mov     edx,[eax]
+ 059e  8a 12                             mov     dl,[edx]
+ 05a0  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 05a6  83 fa 0d                          cmp     edx,0000000dH
+ 05a9  74 05                             je      L58
+ 05ab  83 fa 1a                          cmp     edx,0000001aH
+ 05ae  75 0e                             jne     L59
+ 05b0  a1 00 00 00 00    L58             mov     eax,__iobuf near * near ifp
+ 05b5  e8 00 00 00 00                    call    fgetc_
+ 05ba  89 c3                             mov     ebx,eax
+ 05bc  eb 16                             jmp     L60
+ 05be  8b 48 04          L59             mov     ecx,+4H[eax]
+ 05c1  8b 18                             mov     ebx,[eax]
+ 05c3  49                                dec     ecx
+ 05c4  8d 53 01                          lea     edx,+1H[ebx]
+ 05c7  89 48 04                          mov     +4H[eax],ecx
+ 05ca  89 10                             mov     [eax],edx
+ 05cc  8a 1b                             mov     bl,[ebx]
+ 05ce  81 e3 ff 00 00 00                 and     ebx,000000ffH
+ 05d4  89 d8             L60             mov     eax,ebx
+ 05d6  83 fb 2f                          cmp     ebx,0000002fH
+ 05d9  75 56                             jne     L64
+ 05db  83 f8 ff          L61             cmp     eax,0ffffffffH
+ 05de  0f 84 51 ff ff ff                 je      L53
+ 05e4  83 f8 0a                          cmp     eax,0000000aH
+ 05e7  0f 84 48 ff ff ff                 je      L53
+ 05ed  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 05f2  8b 48 04                          mov     ecx,+4H[eax]
+ 05f5  85 c9                             test    ecx,ecx
+ 05f7  7e 19                             jle     L62
+ 05f9  85 78 0c                          test    +0cH[eax],edi
+ 05fc  75 14                             jne     L62
+ 05fe  8b 10                             mov     edx,[eax]
+ 0600  8a 12                             mov     dl,[edx]
+ 0602  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 0608  83 fa 0d                          cmp     edx,0000000dH
+ 060b  74 05                             je      L62
+ 060d  83 fa 1a                          cmp     edx,0000001aH
+ 0610  75 0c                             jne     L63
+ 0612  a1 00 00 00 00    L62             mov     eax,__iobuf near * near ifp
+ 0617  e8 00 00 00 00                    call    fgetc_
+ 061c  eb bd                             jmp     L61
+ 061e  8d 59 ff          L63             lea     ebx,-1H[ecx]
+ 0621  8b 10                             mov     edx,[eax]
+ 0623  89 58 04                          mov     +4H[eax],ebx
+ 0626  8d 5a 01                          lea     ebx,+1H[edx]
+ 0629  89 18                             mov     [eax],ebx
+ 062b  31 c0                             xor     eax,eax
+ 062d  8a 02                             mov     al,[edx]
+ 062f  eb aa                             jmp     L61
+ 0631  83 fb 2a          L64             cmp     ebx,0000002aH
+ 0634  0f 85 b0 00 00 00                 jne     L73
+ 063a  a1 00 00 00 00    L65             mov     eax,__iobuf near * near ifp
+ 063f  83 78 04 00                       cmp     dword ptr +4H[eax],00000000H
+ 0643  7e 1a                             jle     L66
+ 0645  f6 40 0c 04                       test    byte ptr +0cH[eax],04H
+ 0649  75 14                             jne     L66
+ 064b  8b 10                             mov     edx,[eax]
+ 064d  8a 12                             mov     dl,[edx]
+ 064f  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 0655  83 fa 0d                          cmp     edx,0000000dH
+ 0658  74 05                             je      L66
+ 065a  83 fa 1a                          cmp     edx,0000001aH
+ 065d  75 0c                             jne     L67
+ 065f  a1 00 00 00 00    L66             mov     eax,__iobuf near * near ifp
+ 0664  e8 00 00 00 00                    call    fgetc_
+ 0669  eb 12                             jmp     L68
+ 066b  8b 58 04          L67             mov     ebx,+4H[eax]
+ 066e  4b                                dec     ebx
+ 066f  8b 10                             mov     edx,[eax]
+ 0671  89 58 04                          mov     +4H[eax],ebx
+ 0674  8d 5a 01                          lea     ebx,+1H[edx]
+ 0677  89 18                             mov     [eax],ebx
+ 0679  31 c0                             xor     eax,eax
+ 067b  8a 02                             mov     al,[edx]
+ 067d  83 f8 ff          L68             cmp     eax,0ffffffffH
+ 0680  75 07                             jne     L69
+ 0682  89 f0                             mov     eax,esi
+ 0684  e9 6e 00 00 00                    jmp     L74
+ 0689  83 f8 2a          L69             cmp     eax,0000002aH
+ 068c  75 ac                             jne     L65
+ 068e  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 0693  83 78 04 00                       cmp     dword ptr +4H[eax],00000000H
+ 0697  7e 1a                             jle     L70
+ 0699  f6 40 0c 04                       test    byte ptr +0cH[eax],04H
+ 069d  75 14                             jne     L70
+ 069f  8b 10                             mov     edx,[eax]
+ 06a1  8a 12                             mov     dl,[edx]
+ 06a3  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 06a9  83 fa 0d                          cmp     edx,0000000dH
+ 06ac  74 05                             je      L70
+ 06ae  83 fa 1a                          cmp     edx,0000001aH
+ 06b1  75 0c                             jne     L71
+ 06b3  a1 00 00 00 00    L70             mov     eax,__iobuf near * near ifp
+ 06b8  e8 00 00 00 00                    call    fgetc_
+ 06bd  eb 12                             jmp     L72
+ 06bf  8b 58 04          L71             mov     ebx,+4H[eax]
+ 06c2  4b                                dec     ebx
+ 06c3  8b 10                             mov     edx,[eax]
+ 06c5  89 58 04                          mov     +4H[eax],ebx
+ 06c8  8d 5a 01                          lea     ebx,+1H[edx]
+ 06cb  89 18                             mov     [eax],ebx
+ 06cd  31 c0                             xor     eax,eax
+ 06cf  8a 02                             mov     al,[edx]
+ 06d1  83 f8 2f          L72             cmp     eax,0000002fH
+ 06d4  0f 84 5b fe ff ff                 je      L53
+ 06da  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ifp
+ 06e0  e8 00 00 00 00                    call    ungetc_
+ 06e5  e9 50 ff ff ff                    jmp     L65
+ 06ea  8b 15 00 00 00 00 L73             mov     edx,__iobuf near * near ifp
+ 06f0  e8 00 00 00 00                    call    ungetc_
+ 06f5  89 e8                             mov     eax,ebp
+ 06f7  89 c3             L74             mov     ebx,eax
+ 06f9  83 f8 ff                          cmp     eax,0ffffffffH
+ 06fc  0f 84 8e 00 00 00                 je      L79
+ 0702  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0708  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 070c  75 0b                             jne     L75
+ 070e  8b 42 14                          mov     eax,+14H[edx]
+ 0711  2b 42 04                          sub     eax,+4H[edx]
+ 0714  83 f8 01                          cmp     eax,00000001H
+ 0717  77 0f                             ja      L76
+ 0719  8b 15 00 00 00 00 L75             mov     edx,__iobuf near * near ofp
+ 071f  89 d8                             mov     eax,ebx
+ 0721  e8 00 00 00 00                    call    fputc_
+ 0726  eb 37                             jmp     L78
+ 0728  8b 02             L76             mov     eax,[edx]
+ 072a  88 18                             mov     [eax],bl
+ 072c  8b 02                             mov     eax,[edx]
+ 072e  8a 00                             mov     al,[eax]
+ 0730  25 ff 00 00 00                    and     eax,000000ffH
+ 0735  83 f8 0a                          cmp     eax,0000000aH
+ 0738  75 07                             jne     L77
+ 073a  e8 00 00 00 00                    call    fputc_
+ 073f  eb 1e                             jmp     L78
+ 0741  8b 42 04          L77             mov     eax,+4H[edx]
+ 0744  40                                inc     eax
+ 0745  8a 6a 0d                          mov     ch,+0dH[edx]
+ 0748  89 42 04                          mov     +4H[edx],eax
+ 074b  80 cd 10                          or      ch,10H
+ 074e  8b 02                             mov     eax,[edx]
+ 0750  88 6a 0d                          mov     +0dH[edx],ch
+ 0753  8d 58 01                          lea     ebx,+1H[eax]
+ 0756  89 1a                             mov     [edx],ebx
+ 0758  8a 00                             mov     al,[eax]
+ 075a  25 ff 00 00 00                    and     eax,000000ffH
+ 075f  83 f8 ff          L78             cmp     eax,0ffffffffH
+ 0762  0f 85 cd fd ff ff                 jne     L53
+ 0768  68 00 00 00 00                    push    offset L81
+ 076d  68 34 00 00 00                    push    offset ___iob+34H
+ 0772  e8 00 00 00 00                    call    fprintf_
+ 0777  83 c4 08                          add     esp,00000008H
+ 077a  b8 25 00 00 00                    mov     eax,offset L82
+ 077f  e8 00 00 00 00                    call    perror_
+ 0784  89 f8                             mov     eax,edi
+ 0786  e8 00 00 00 00                    call    exit_
+ 078b  e9 a5 fd ff ff                    jmp     L53
+
+        fclose(ifp);
+ 0790  a1 00 00 00 00    L79             mov     eax,__iobuf near * near ifp
+ 0795  e8 00 00 00 00                    call    fclose_
+
+        if(fclose(ofp)) {
+ 079a  a1 00 00 00 00                    mov     eax,__iobuf near * near ofp
+ 079f  e8 00 00 00 00                    call    fclose_
+ 07a4  85 c0                             test    eax,eax
+ 07a6  74 26                             je      L80
+
+                fprintf(stderr,"cmtstrip: could not close output\n");
+ 07a8  68 98 00 00 00                    push    offset L88
+ 07ad  68 34 00 00 00                    push    offset ___iob+34H
+ 07b2  e8 00 00 00 00                    call    fprintf_
+ 07b7  83 c4 08                          add     esp,00000008H
+
+                perror("cmtstrip");
+ 07ba  b8 ba 00 00 00                    mov     eax,offset L89
+ 07bf  e8 00 00 00 00                    call    perror_
+
+                exit(4);
+        }
+
+
+ 07c4  b8 04 00 00 00                    mov     eax,00000004H
+ 07c9  e8 00 00 00 00                    call    exit_
+
+        exit(0);
+ 07ce  31 c0             L80             xor     eax,eax
+ 07d0  e8 00 00 00 00                    call    exit_
+
+}
+
+ 07d5  5d                                pop     ebp
+ 07d6  5f                                pop     edi
+ 07d7  5e                                pop     esi
+ 07d8  59                                pop     ecx
+ 07d9  5b                                pop     ebx
+ 07da  c3                                ret     
+
+No disassembly errors
+
+------------------------------------------------------------
+
+Segment: CONST  DWORD USE32  000000c3 bytes  
+ 0000  63 6d 74 73 74 72 69 70 L81             - cmtstrip
+ 0008  3a 20 63 6f 75 6c 64 20                 - : could 
+ 0010  6e 6f 74 20 77 72 69 74                 - not writ
+ 0018  65 20 74 6f 20 6f 75 74                 - e to out
+ 0020  70 75 74 0a 00                          - put..
+ 0025  63 6d 74 73 74 72 69 70 L82             - cmtstrip
+ 002d  00                                      - .
+ 002e  55 73 61 67 65 3a 20 63 L83             - Usage: c
+ 0036  6d 74 73 74 72 69 70 20                 - mtstrip 
+ 003e  3c 69 6e 66 69 6c 65 3e                 - <infile>
+ 0046  20 3c 6f 75 74 66 69 6c                 -  <outfil
+ 004e  65 3e 0a 00                             - e>..
+ 0052  72 74 00                L84             - rt.
+ 0055  63 6d 74 73 74 72 69 70 L85             - cmtstrip
+ 005d  3a 20 63 6f 75 6c 64 20                 - : could 
+ 0065  6e 6f 74 20 6f 70 65 6e                 - not open
+ 006d  20 27 25 73 27 0a 00                    -  '%s'..
+ 0074  77 74 00                L86             - wt.
+ 0077  63 6d 74 73 74 72 69 70 L87             - cmtstrip
+ 007f  3a 20 63 6f 75 6c 64 20                 - : could 
+ 0087  6e 6f 74 20 63 72 65 61                 - not crea
+ 008f  74 65 20 27 25 73 27 0a                 - te '%s'.
+ 0097  00                                      - .
+ 0098  63 6d 74 73 74 72 69 70 L88             - cmtstrip
+ 00a0  3a 20 63 6f 75 6c 64 20                 - : could 
+ 00a8  6e 6f 74 20 63 6c 6f 73                 - not clos
+ 00b0  65 20 6f 75 74 70 75 74                 - e output
+ 00b8  0a 00                                   - ..
+ 00ba  63 6d 74 73 74 72 69 70 L89             - cmtstrip
+ 00c2  00                                      - .
+
+No disassembly errors
+
+------------------------------------------------------------
+
+Segment: _BSS  DWORD USE32  00000008 bytes  
+
+No disassembly errors
+
+------------------------------------------------------------

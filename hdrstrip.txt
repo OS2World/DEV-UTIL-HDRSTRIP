@@ -1,0 +1,81 @@
+This software is Public Domain.
+
+
+HDRSTRIP consists of 4 utility program which can reduce the size of your 
+headerfiles.
+
+Some C headerfiles contains a lot of comments and extra spaces. This means 
+that your compiler has to read and parse somethng that is not needed. While 
+the parsing of comments and spaces isn't time-expensive, _reading_ it can be.
+
+
+Example 1:
+The headerfiles for OS/2 consists of 152 files with a total size of over 
+2MB. These files contains a lot of comments and spaces.
+
+A subset of the OS/2 headerfiles (*.h except wp*.h) is 102 files with a 
+total size of 2,167KB. When These files were stripped by hdrstrip.exe the 
+total size was reduced to  971KB.
+
+A toal rebuild of one of my project (24 modules) with the non-stripped 
+headerfiles took 4min 30sec. After the os/2 header files were stripped a total 
+rebuild took only 3min 45sec
+
+
+Example 2:
+The windows.h headerfile shipped with Borland C++ 3.1 is 158482 bytes. After 
+this file was stripped it was only 110306 bytes.
+
+
+The utilities:
+
+cmtstrip.c
+  This program will strip comments in C/C++ files.
+  Usage: <infile> <outfile>
+     or: -p                        (if you want it to act like a pipe)
+
+spcstrip.c
+  This program will remove unnecessarry spaces in headerfiles. Note: it can't 
+  handle strings with spaces in them. It will remove initial and trailing 
+  blanks in lines as well as iterations of spaces. Eg:
+    int     foo(int          x,
+                int          y,
+                const char * buffer,
+                int          buffersize);
+  is reduced to:
+    int foo(int x,
+    int y,
+    const char * buffer,
+    int buffersize);
+
+  Usage: <infile> <outfile>
+     or: -p                        (if you want it to act like a pipe)
+
+ppnstrip.c
+  This program will remove prototype parameter names i C headerfiles (can't be 
+  used safely on C++ headerfiles). Eg:
+    int foo(int x, int y, const char *buffer, int buffersize);
+  is reduced to:
+    int foo(int,int,const char *,int);
+
+  Usage: <infile> <outfile>
+     or: -p                        (if you want it to act like a pipe)
+
+hdrstrip.c
+  This OS/2 program will run all of the above 3 utilities on a headerfile.
+  It does this by setting up pipes between the 3 above program. This isn't 
+  the most efficient way of doing it, but I just wanted to try pipes under 
+  OS/2.
+
+  Usage: <infile> <outfile>
+     or: -p                      (if you want it to act like a pipe)
+     or: <infile> -b             (if you want hdrstrip to create a backup file)
+
+
+
+Since these utilities are only useful if you have a C++ compiler I haven't
+included the executables.
+
+
+Contacting the author:
+  Send a NetMail to Ivan Joergensen on FidoNet 2:238/64.17

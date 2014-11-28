@@ -1,0 +1,1847 @@
+
+Module: D:\source\os2\hdrstrip\ppnstrip.cpp
+Group: 'DGROUP' CONST,CONST2,_DATA,_BSS
+
+Segment: _TEXT  PARA USE32  00001273 bytes  
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+FILE *ifp,*ofp;
+
+
+void writeError() {
+        perror("ppnstrip");
+ 0000                    void near writeError():
+ 0000  b8 00 00 00 00                    mov     eax,offset L177
+ 0005  e8 00 00 00 00                    call    perror_
+
+        exit(-1);
+}
+
+ 000a  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 000f  e9 00 00 00 00                    jmp     exit_
+
+void skipWhite(int output) {
+        //skip spaces and tabs
+        int c;
+ 0014                    void near skipWhite( int ):
+ 0014  53                                push    ebx
+ 0015  51                                push    ecx
+ 0016  52                                push    edx
+ 0017  56                                push    esi
+ 0018  55                                push    ebp
+ 0019  89 c1                             mov     ecx,eax
+
+        while((c=getc(ifp))==' ' || c=='\t') {
+ 001b  8b 15 00 00 00 00 L1              mov     edx,__iobuf near * near ifp
+ 0021  8b 5a 04                          mov     ebx,+4H[edx]
+ 0024  85 db                             test    ebx,ebx
+ 0026  7e 19                             jle     L2
+ 0028  f6 42 0c 04                       test    byte ptr +0cH[edx],04H
+ 002c  75 13                             jne     L2
+ 002e  8b 02                             mov     eax,[edx]
+ 0030  8a 00                             mov     al,[eax]
+ 0032  25 ff 00 00 00                    and     eax,000000ffH
+ 0037  83 f8 0d                          cmp     eax,0000000dH
+ 003a  74 05                             je      L2
+ 003c  83 f8 1a                          cmp     eax,0000001aH
+ 003f  75 0c                             jne     L3
+ 0041  a1 00 00 00 00    L2              mov     eax,__iobuf near * near ifp
+ 0046  e8 00 00 00 00                    call    fgetc_
+ 004b  eb 14                             jmp     L4
+ 004d  8d 73 ff          L3              lea     esi,-1H[ebx]
+ 0050  8b 02                             mov     eax,[edx]
+ 0052  8d 58 01                          lea     ebx,+1H[eax]
+ 0055  89 72 04                          mov     +4H[edx],esi
+ 0058  89 1a                             mov     [edx],ebx
+ 005a  8a 00                             mov     al,[eax]
+ 005c  25 ff 00 00 00                    and     eax,000000ffH
+ 0061  89 c3             L4              mov     ebx,eax
+ 0063  83 f8 20                          cmp     eax,00000020H
+ 0066  74 09                             je      L5
+ 0068  83 f8 09                          cmp     eax,00000009H
+ 006b  0f 85 83 00 00 00                 jne     L10
+
+                if(output) {
+ 0071  85 c9             L5              test    ecx,ecx
+ 0073  74 a6                             je      L1
+
+                        if(putc(c,ofp)==EOF) writeError();
+                }
+        }
+ 0075  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 007b  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 007f  75 0b                             jne     L6
+ 0081  8b 42 14                          mov     eax,+14H[edx]
+ 0084  2b 42 04                          sub     eax,+4H[edx]
+ 0087  83 f8 01                          cmp     eax,00000001H
+ 008a  77 0f                             ja      L7
+ 008c  8b 15 00 00 00 00 L6              mov     edx,__iobuf near * near ofp
+ 0092  89 d8                             mov     eax,ebx
+ 0094  e8 00 00 00 00                    call    fputc_
+ 0099  eb 37                             jmp     L9
+ 009b  8b 02             L7              mov     eax,[edx]
+ 009d  88 18                             mov     [eax],bl
+ 009f  8b 02                             mov     eax,[edx]
+ 00a1  8a 00                             mov     al,[eax]
+ 00a3  25 ff 00 00 00                    and     eax,000000ffH
+ 00a8  83 f8 0a                          cmp     eax,0000000aH
+ 00ab  75 07                             jne     L8
+ 00ad  e8 00 00 00 00                    call    fputc_
+ 00b2  eb 1e                             jmp     L9
+ 00b4  8a 62 0d          L8              mov     ah,+0dH[edx]
+ 00b7  80 cc 10                          or      ah,10H
+ 00ba  8b 6a 04                          mov     ebp,+4H[edx]
+ 00bd  88 62 0d                          mov     +0dH[edx],ah
+ 00c0  45                                inc     ebp
+ 00c1  8b 02                             mov     eax,[edx]
+ 00c3  89 6a 04                          mov     +4H[edx],ebp
+ 00c6  8d 58 01                          lea     ebx,+1H[eax]
+ 00c9  89 1a                             mov     [edx],ebx
+ 00cb  8a 00                             mov     al,[eax]
+ 00cd  25 ff 00 00 00                    and     eax,000000ffH
+ 00d2  83 f8 ff          L9              cmp     eax,0ffffffffH
+ 00d5  0f 85 40 ff ff ff                 jne     L1
+ 00db  b8 00 00 00 00                    mov     eax,offset L177
+ 00e0  e8 00 00 00 00                    call    perror_
+ 00e5  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 00ea  e8 00 00 00 00                    call    exit_
+ 00ef  e9 27 ff ff ff                    jmp     L1
+
+        ungetc(c,ifp);
+ 00f4  8b 15 00 00 00 00 L10             mov     edx,__iobuf near * near ifp
+ 00fa  e8 00 00 00 00                    call    ungetc_
+
+}
+
+ 00ff  5d                                pop     ebp
+ 0100  5e                                pop     esi
+ 0101  5a                                pop     edx
+ 0102  59                                pop     ecx
+ 0103  5b                                pop     ebx
+ 0104  c3                                ret     
+ 0105  8d 40 00                          lea     eax,+0H[eax]
+
+void skipWhiteNL(int output) {
+        //skip spaces, tabs and newliens
+        int c;
+ 0108                    void near skipWhiteNL( int ):
+ 0108  53                                push    ebx
+ 0109  51                                push    ecx
+ 010a  52                                push    edx
+ 010b  56                                push    esi
+ 010c  57                                push    edi
+ 010d  89 c1                             mov     ecx,eax
+ 010f  be 0a 00 00 00                    mov     esi,0000000aH
+
+        while((c=getc(ifp))==' ' || c=='\t' || c=='\n') {
+ 0114  8b 15 00 00 00 00 L11             mov     edx,__iobuf near * near ifp
+ 011a  8b 5a 04                          mov     ebx,+4H[edx]
+ 011d  85 db                             test    ebx,ebx
+ 011f  7e 19                             jle     L12
+ 0121  f6 42 0c 04                       test    byte ptr +0cH[edx],04H
+ 0125  75 13                             jne     L12
+ 0127  8b 02                             mov     eax,[edx]
+ 0129  8a 00                             mov     al,[eax]
+ 012b  25 ff 00 00 00                    and     eax,000000ffH
+ 0130  83 f8 0d                          cmp     eax,0000000dH
+ 0133  74 05                             je      L12
+ 0135  83 f8 1a                          cmp     eax,0000001aH
+ 0138  75 0c                             jne     L13
+ 013a  a1 00 00 00 00    L12             mov     eax,__iobuf near * near ifp
+ 013f  e8 00 00 00 00                    call    fgetc_
+ 0144  eb 14                             jmp     L14
+ 0146  8d 7b ff          L13             lea     edi,-1H[ebx]
+ 0149  8b 02                             mov     eax,[edx]
+ 014b  8d 58 01                          lea     ebx,+1H[eax]
+ 014e  89 7a 04                          mov     +4H[edx],edi
+ 0151  89 1a                             mov     [edx],ebx
+ 0153  8a 00                             mov     al,[eax]
+ 0155  25 ff 00 00 00                    and     eax,000000ffH
+ 015a  89 c3             L14             mov     ebx,eax
+ 015c  83 f8 20                          cmp     eax,00000020H
+ 015f  74 0e                             je      L15
+ 0161  83 f8 09                          cmp     eax,00000009H
+ 0164  74 09                             je      L15
+ 0166  83 f8 0a                          cmp     eax,0000000aH
+ 0169  0f 85 7c 00 00 00                 jne     L20
+
+                if(output) {
+ 016f  85 c9             L15             test    ecx,ecx
+ 0171  74 a1                             je      L11
+
+                        if(putc(c,ofp)==EOF) writeError();
+                }
+        }
+ 0173  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0179  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 017d  75 0b                             jne     L16
+ 017f  8b 42 14                          mov     eax,+14H[edx]
+ 0182  2b 42 04                          sub     eax,+4H[edx]
+ 0185  83 f8 01                          cmp     eax,00000001H
+ 0188  77 0f                             ja      L17
+ 018a  8b 15 00 00 00 00 L16             mov     edx,__iobuf near * near ofp
+ 0190  89 d8                             mov     eax,ebx
+ 0192  e8 00 00 00 00                    call    fputc_
+ 0197  eb 30                             jmp     L19
+ 0199  8b 02             L17             mov     eax,[edx]
+ 019b  88 18                             mov     [eax],bl
+ 019d  8b 02                             mov     eax,[edx]
+ 019f  8a 00                             mov     al,[eax]
+ 01a1  25 ff 00 00 00                    and     eax,000000ffH
+ 01a6  83 f8 0a                          cmp     eax,0000000aH
+ 01a9  75 09                             jne     L18
+ 01ab  89 f0                             mov     eax,esi
+ 01ad  e8 00 00 00 00                    call    fputc_
+ 01b2  eb 15                             jmp     L19
+ 01b4  80 4a 0d 10       L18             or      byte ptr +0dH[edx],10H
+ 01b8  ff 42 04                          inc     dword ptr +4H[edx]
+ 01bb  8b 02                             mov     eax,[edx]
+ 01bd  8d 58 01                          lea     ebx,+1H[eax]
+ 01c0  89 1a                             mov     [edx],ebx
+ 01c2  8a 00                             mov     al,[eax]
+ 01c4  25 ff 00 00 00                    and     eax,000000ffH
+ 01c9  83 f8 ff          L19             cmp     eax,0ffffffffH
+ 01cc  0f 85 42 ff ff ff                 jne     L11
+ 01d2  b8 00 00 00 00                    mov     eax,offset L177
+ 01d7  e8 00 00 00 00                    call    perror_
+ 01dc  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 01e1  e8 00 00 00 00                    call    exit_
+ 01e6  e9 29 ff ff ff                    jmp     L11
+
+        ungetc(c,ifp);
+ 01eb  8b 15 00 00 00 00 L20             mov     edx,__iobuf near * near ifp
+ 01f1  e8 00 00 00 00                    call    ungetc_
+
+}
+
+ 01f6  5f                L21             pop     edi
+ 01f7  5e                                pop     esi
+ 01f8  5a                                pop     edx
+ 01f9  59                                pop     ecx
+ 01fa  5b                                pop     ebx
+ 01fb  c3                                ret     
+
+void passThroughPPD() {
+        //pass a preprocessor directive line (and backslashed lines) through
+ 01fc                    void near passThroughPPD():
+ 01fc  53                                push    ebx
+ 01fd  51                                push    ecx
+ 01fe  52                                push    edx
+ 01ff  56                                push    esi
+ 0200  57                                push    edi
+
+        int lastChar=0;
+ 0201  31 c9                             xor     ecx,ecx
+
+        for(;;) {
+ 0203  be 0a 00 00 00                    mov     esi,0000000aH
+
+                int c=getc(ifp);
+ 0208  8b 15 00 00 00 00 L22             mov     edx,__iobuf near * near ifp
+ 020e  8b 5a 04                          mov     ebx,+4H[edx]
+ 0211  85 db                             test    ebx,ebx
+ 0213  7e 19                             jle     L23
+ 0215  f6 42 0c 04                       test    byte ptr +0cH[edx],04H
+ 0219  75 13                             jne     L23
+ 021b  8b 02                             mov     eax,[edx]
+ 021d  8a 00                             mov     al,[eax]
+ 021f  25 ff 00 00 00                    and     eax,000000ffH
+ 0224  83 f8 0d                          cmp     eax,0000000dH
+ 0227  74 05                             je      L23
+ 0229  83 f8 1a                          cmp     eax,0000001aH
+ 022c  75 0c                             jne     L24
+ 022e  a1 00 00 00 00    L23             mov     eax,__iobuf near * near ifp
+ 0233  e8 00 00 00 00                    call    fgetc_
+ 0238  eb 14                             jmp     L25
+ 023a  8d 7b ff          L24             lea     edi,-1H[ebx]
+ 023d  8b 02                             mov     eax,[edx]
+ 023f  8d 58 01                          lea     ebx,+1H[eax]
+ 0242  89 7a 04                          mov     +4H[edx],edi
+ 0245  89 1a                             mov     [edx],ebx
+ 0247  8a 00                             mov     al,[eax]
+ 0249  25 ff 00 00 00                    and     eax,000000ffH
+ 024e  89 c3             L25             mov     ebx,eax
+
+                if(c==EOF) break;
+ 0250  83 f8 ff                          cmp     eax,0ffffffffH
+ 0253  74 a1                             je      L21
+
+                putc(c,ofp);
+ 0255  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 025b  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 025f  75 0b                             jne     L26
+ 0261  8b 42 14                          mov     eax,+14H[edx]
+ 0264  2b 42 04                          sub     eax,+4H[edx]
+ 0267  83 f8 01                          cmp     eax,00000001H
+ 026a  77 0f                             ja      L27
+ 026c  8b 15 00 00 00 00 L26             mov     edx,__iobuf near * near ofp
+ 0272  89 d8                             mov     eax,ebx
+ 0274  e8 00 00 00 00                    call    fputc_
+ 0279  eb 30                             jmp     L29
+ 027b  8b 02             L27             mov     eax,[edx]
+ 027d  88 18                             mov     [eax],bl
+ 027f  8b 02                             mov     eax,[edx]
+ 0281  8a 00                             mov     al,[eax]
+ 0283  25 ff 00 00 00                    and     eax,000000ffH
+ 0288  83 f8 0a                          cmp     eax,0000000aH
+ 028b  75 09                             jne     L28
+ 028d  89 f0                             mov     eax,esi
+ 028f  e8 00 00 00 00                    call    fputc_
+ 0294  eb 15                             jmp     L29
+ 0296  8a 62 0d          L28             mov     ah,+0dH[edx]
+ 0299  80 cc 10                          or      ah,10H
+ 029c  8b 3a                             mov     edi,[edx]
+ 029e  88 62 0d                          mov     +0dH[edx],ah
+ 02a1  47                                inc     edi
+ 02a2  8b 42 04                          mov     eax,+4H[edx]
+ 02a5  89 3a                             mov     [edx],edi
+ 02a7  40                                inc     eax
+ 02a8  89 42 04                          mov     +4H[edx],eax
+
+                if(c=='\n') {
+                        //could be end PPD
+ 02ab  83 fb 0a          L29             cmp     ebx,0000000aH
+ 02ae  75 09                             jne     L30
+
+                        if(lastChar!='\\') {
+                                //yes, it's the end
+                                return;
+                        }
+                }
+ 02b0  83 f9 5c                          cmp     ecx,0000005cH
+ 02b3  0f 85 3d ff ff ff                 jne     L21
+
+                lastChar=c;
+ 02b9  89 d9             L30             mov     ecx,ebx
+
+        }
+}
+
+ 02bb  e9 48 ff ff ff                    jmp     L22
+
+void passThroughTypedef() {
+        int c;
+ 02c0                    void near passThroughTypedef():
+ 02c0  53                                push    ebx
+ 02c1  51                                push    ecx
+ 02c2  52                                push    edx
+ 02c3  57                                push    edi
+ 02c4  55                                push    ebp
+
+        while((c=getc(ifp))!=EOF) {
+ 02c5  8b 15 00 00 00 00 L31             mov     edx,__iobuf near * near ifp
+ 02cb  8b 5a 04                          mov     ebx,+4H[edx]
+ 02ce  85 db                             test    ebx,ebx
+ 02d0  7e 19                             jle     L32
+ 02d2  f6 42 0c 04                       test    byte ptr +0cH[edx],04H
+ 02d6  75 13                             jne     L32
+ 02d8  8b 02                             mov     eax,[edx]
+ 02da  8a 00                             mov     al,[eax]
+ 02dc  25 ff 00 00 00                    and     eax,000000ffH
+ 02e1  83 f8 0d                          cmp     eax,0000000dH
+ 02e4  74 05                             je      L32
+ 02e6  83 f8 1a                          cmp     eax,0000001aH
+ 02e9  75 0c                             jne     L33
+ 02eb  a1 00 00 00 00    L32             mov     eax,__iobuf near * near ifp
+ 02f0  e8 00 00 00 00                    call    fgetc_
+ 02f5  eb 14                             jmp     L34
+ 02f7  8d 4b ff          L33             lea     ecx,-1H[ebx]
+ 02fa  8b 02                             mov     eax,[edx]
+ 02fc  8d 58 01                          lea     ebx,+1H[eax]
+ 02ff  89 4a 04                          mov     +4H[edx],ecx
+ 0302  89 1a                             mov     [edx],ebx
+ 0304  8a 00                             mov     al,[eax]
+ 0306  25 ff 00 00 00                    and     eax,000000ffH
+ 030b  89 c3             L34             mov     ebx,eax
+ 030d  83 f8 ff                          cmp     eax,0ffffffffH
+ 0310  0f 84 79 00 00 00                 je      L40
+
+                putc(c,ofp);
+ 0316  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 031c  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 0320  75 0b                             jne     L35
+ 0322  8b 42 14                          mov     eax,+14H[edx]
+ 0325  2b 42 04                          sub     eax,+4H[edx]
+ 0328  83 f8 01                          cmp     eax,00000001H
+ 032b  77 0f                             ja      L36
+ 032d  8b 15 00 00 00 00 L35             mov     edx,__iobuf near * near ofp
+ 0333  89 d8                             mov     eax,ebx
+ 0335  e8 00 00 00 00                    call    fputc_
+ 033a  eb 3b                             jmp     L38
+ 033c  8b 02             L36             mov     eax,[edx]
+ 033e  88 18                             mov     [eax],bl
+ 0340  8b 02                             mov     eax,[edx]
+ 0342  8a 00                             mov     al,[eax]
+ 0344  25 ff 00 00 00                    and     eax,000000ffH
+ 0349  83 f8 0a                          cmp     eax,0000000aH
+ 034c  75 14                             jne     L37
+ 034e  e8 00 00 00 00                    call    fputc_
+ 0353  83 fb 23                          cmp     ebx,00000023H
+ 0356  75 2e                             jne     L39
+ 0358  e8 00 00 00 00                    call    void near passThroughPPD()
+ 035d  e9 63 ff ff ff                    jmp     L31
+ 0362  8a 6a 0d          L37             mov     ch,+0dH[edx]
+ 0365  8b 7a 04                          mov     edi,+4H[edx]
+ 0368  8b 2a                             mov     ebp,[edx]
+ 036a  80 cd 10                          or      ch,10H
+ 036d  47                                inc     edi
+ 036e  88 6a 0d                          mov     +0dH[edx],ch
+ 0371  45                                inc     ebp
+ 0372  89 7a 04                          mov     +4H[edx],edi
+ 0375  89 2a                             mov     [edx],ebp
+
+                if(c=='#') {
+ 0377  83 fb 23          L38             cmp     ebx,00000023H
+ 037a  75 0a                             jne     L39
+
+                        passThroughPPD();
+ 037c  e8 00 00 00 00                    call    void near passThroughPPD()
+
+                } else {
+ 0381  e9 3f ff ff ff                    jmp     L31
+
+                        if(c==';')
+                                break; //end of typedef reached
+                }
+        }
+ 0386  83 fb 3b          L39             cmp     ebx,0000003bH
+ 0389  0f 85 36 ff ff ff                 jne     L31
+
+}
+
+
+struct token {
+        char s[256];
+};
+
+ 038f  5d                L40             pop     ebp
+
+Comdat: int near isLegalFirstChar( int )  SEGMENT ANY '_TEXT'  00000024 bytes  
+
+inline int isLegalFirstChar(int c) {
+        return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c=='_');
+ 0000  83 f8 61                          cmp     eax,00000061H
+ 0003  7c 05                             jl      L185
+ 0005  83 f8 7a                          cmp     eax,0000007aH
+ 0008  7e 0f                             jle     L187
+ 000a  83 f8 41          L185            cmp     eax,00000041H
+ 000d  7c 05                             jl      L186
+ 000f  83 f8 5a                          cmp     eax,0000005aH
+ 0012  7e 05                             jle     L187
+ 0014  83 f8 5f          L186            cmp     eax,0000005fH
+ 0017  75 06                             jne     L188
+ 0019  b8 01 00 00 00    L187            mov     eax,00000001H
+ 001e  c3                                ret     
+ 001f  31 c0             L188            xor     eax,eax
+
+}
+ 0021  c3                                ret     
+ 0022  8b c0                             mov     eax,eax
+
+No disassembly errors
+
+------------------------------------------------------------
+ 0390  5f                                pop     edi
+
+Comdat: int near isLegalSecondChar( int )  SEGMENT ANY '_TEXT'  00000044 bytes  
+
+inline int isLegalSecondChar(int c) {
+ 0000  53                                push    ebx
+ 0001  52                                push    edx
+
+        return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' & c<'9') || (c=='_');
+ 0002  83 f8 61                          cmp     eax,00000061H
+ 0005  7c 05                             jl      L189
+ 0007  83 f8 7a                          cmp     eax,0000007aH
+ 000a  7e 2b                             jle     L191
+ 000c  83 f8 41          L189            cmp     eax,00000041H
+ 000f  7c 05                             jl      L190
+ 0011  83 f8 5a                          cmp     eax,0000005aH
+ 0014  7e 21                             jle     L191
+ 0016  83 f8 30          L190            cmp     eax,00000030H
+ 0019  0f 9d c2                          setge   dl
+ 001c  81 e2 ff 00 00 00                 and     edx,000000ffH
+ 0022  83 f8 39                          cmp     eax,00000039H
+ 0025  0f 9c c3                          setl    bl
+ 0028  81 e3 ff 00 00 00                 and     ebx,000000ffH
+ 002e  85 da                             test    edx,ebx
+ 0030  75 05                             jne     L191
+ 0032  83 f8 5f                          cmp     eax,0000005fH
+ 0035  75 08                             jne     L192
+ 0037  b8 01 00 00 00    L191            mov     eax,00000001H
+ 003c  5a                                pop     edx
+ 003d  5b                                pop     ebx
+ 003e  c3                                ret     
+ 003f  31 c0             L192            xor     eax,eax
+
+}
+
+ 0041  5a                                pop     edx
+ 0042  5b                                pop     ebx
+ 0043  c3                                ret     
+
+No disassembly errors
+
+------------------------------------------------------------
+ 0391  5a                                pop     edx
+ 0392  59                                pop     ecx
+ 0393  5b                                pop     ebx
+ 0394  c3                                ret     
+ 0395  8d 40 00                          lea     eax,+0H[eax]
+
+int getToken(token &tk) {
+ 0398                    int near getToken( token near & ):
+ 0398  53                                push    ebx
+ 0399  51                                push    ecx
+ 039a  52                                push    edx
+ 039b  56                                push    esi
+ 039c  57                                push    edi
+ 039d  83 ec 04                          sub     esp,00000004H
+ 03a0  89 c2                             mov     edx,eax
+
+        int c=getc(ifp);
+ 03a2  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 03a7  83 78 04 00                       cmp     dword ptr +4H[eax],00000000H
+ 03ab  7e 1a                             jle     L41
+ 03ad  f6 40 0c 04                       test    byte ptr +0cH[eax],04H
+ 03b1  75 14                             jne     L41
+ 03b3  8b 18                             mov     ebx,[eax]
+ 03b5  8a 1b                             mov     bl,[ebx]
+ 03b7  81 e3 ff 00 00 00                 and     ebx,000000ffH
+ 03bd  83 fb 0d                          cmp     ebx,0000000dH
+ 03c0  74 05                             je      L41
+ 03c2  83 fb 1a                          cmp     ebx,0000001aH
+ 03c5  75 0c                             jne     L42
+ 03c7  a1 00 00 00 00    L41             mov     eax,__iobuf near * near ifp
+ 03cc  e8 00 00 00 00                    call    fgetc_
+ 03d1  eb 12                             jmp     L43
+ 03d3  8b 48 04          L42             mov     ecx,+4H[eax]
+ 03d6  49                                dec     ecx
+ 03d7  8b 18                             mov     ebx,[eax]
+ 03d9  89 48 04                          mov     +4H[eax],ecx
+ 03dc  8d 4b 01                          lea     ecx,+1H[ebx]
+ 03df  89 08                             mov     [eax],ecx
+ 03e1  31 c0                             xor     eax,eax
+ 03e3  8a 03                             mov     al,[ebx]
+ 03e5  89 c3             L43             mov     ebx,eax
+
+        if(c==EOF) return EOF;
+ 03e7  83 f8 ff                          cmp     eax,0ffffffffH
+ 03ea  0f 84 df 00 00 00                 je      L60
+
+        if(isLegalFirstChar(c)) {
+                //a word
+                char *p=tk.s;
+ 03f0  89 c1                             mov     ecx,eax
+ 03f2  83 f8 61                          cmp     eax,00000061H
+ 03f5  7c 05                             jl      L44
+ 03f7  83 f8 7a                          cmp     eax,0000007aH
+ 03fa  7e 0f                             jle     L46
+ 03fc  83 f9 41          L44             cmp     ecx,00000041H
+ 03ff  7c 05                             jl      L45
+ 0401  83 f9 5a                          cmp     ecx,0000005aH
+ 0404  7e 05                             jle     L46
+ 0406  83 f9 5f          L45             cmp     ecx,0000005fH
+ 0409  75 07                             jne     L47
+ 040b  b8 01 00 00 00    L46             mov     eax,00000001H
+ 0410  eb 02                             jmp     L48
+ 0412  31 c0             L47             xor     eax,eax
+ 0414  85 c0             L48             test    eax,eax
+ 0416  0f 84 ab 00 00 00                 je      L59
+
+                while(isLegalSecondChar(c)) {
+                        *p++=(char)c;
+ 041c  89 d8             L49             mov     eax,ebx
+ 041e  83 fb 61                          cmp     ebx,00000061H
+ 0421  7c 05                             jl      L50
+ 0423  83 fb 7a                          cmp     ebx,0000007aH
+ 0426  7e 2a                             jle     L52
+ 0428  83 f8 41          L50             cmp     eax,00000041H
+ 042b  7c 05                             jl      L51
+ 042d  83 f8 5a                          cmp     eax,0000005aH
+ 0430  7e 20                             jle     L52
+ 0432  83 f8 30          L51             cmp     eax,00000030H
+ 0435  0f 9d c1                          setge   cl
+ 0438  81 e1 ff 00 00 00                 and     ecx,000000ffH
+ 043e  83 f8 39                          cmp     eax,00000039H
+ 0441  0f 9c 04 24                       setl    byte ptr [esp]
+ 0445  0f b6 34 24                       movzx   esi,byte ptr [esp]
+ 0449  85 f1                             test    ecx,esi
+ 044b  75 05                             jne     L52
+ 044d  83 f8 5f                          cmp     eax,0000005fH
+ 0450  75 07                             jne     L53
+ 0452  b8 01 00 00 00    L52             mov     eax,00000001H
+ 0457  eb 02                             jmp     L54
+ 0459  31 c0             L53             xor     eax,eax
+ 045b  85 c0             L54             test    eax,eax
+ 045d  74 4d                             je      L58
+
+ 045f  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+
+                        c=getc(ifp);
+ 0464  88 1a                             mov     [edx],bl
+ 0466  8b 70 04                          mov     esi,+4H[eax]
+ 0469  42                                inc     edx
+ 046a  85 f6                             test    esi,esi
+ 046c  7e 1a                             jle     L55
+ 046e  f6 40 0c 04                       test    byte ptr +0cH[eax],04H
+ 0472  75 14                             jne     L55
+ 0474  8b 18                             mov     ebx,[eax]
+ 0476  8a 1b                             mov     bl,[ebx]
+ 0478  81 e3 ff 00 00 00                 and     ebx,000000ffH
+ 047e  83 fb 0d                          cmp     ebx,0000000dH
+ 0481  74 05                             je      L55
+ 0483  83 fb 1a                          cmp     ebx,0000001aH
+ 0486  75 0c                             jne     L56
+ 0488  a1 00 00 00 00    L55             mov     eax,__iobuf near * near ifp
+ 048d  e8 00 00 00 00                    call    fgetc_
+ 0492  eb 11                             jmp     L57
+ 0494  8b 18             L56             mov     ebx,[eax]
+ 0496  8d 7e ff                          lea     edi,-1H[esi]
+ 0499  8d 4b 01                          lea     ecx,+1H[ebx]
+ 049c  89 78 04                          mov     +4H[eax],edi
+ 049f  89 08                             mov     [eax],ecx
+ 04a1  31 c0                             xor     eax,eax
+ 04a3  8a 03                             mov     al,[ebx]
+ 04a5  89 c3             L57             mov     ebx,eax
+
+                }
+ 04a7  e9 70 ff ff ff                    jmp     L49
+ 04ac  89 d8             L58             mov     eax,ebx
+
+                *p='\0';
+ 04ae  c6 02 00                          mov     byte ptr [edx],00H
+
+                ungetc(c,ifp);
+ 04b1  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ifp
+ 04b7  e8 00 00 00 00                    call    ungetc_
+
+        } else {
+                tk.s[0]=(char)c;
+ 04bc  31 c0                             xor     eax,eax
+ 04be  83 c4 04                          add     esp,00000004H
+ 04c1  5f                                pop     edi
+ 04c2  5e                                pop     esi
+ 04c3  5a                                pop     edx
+ 04c4  59                                pop     ecx
+ 04c5  5b                                pop     ebx
+ 04c6  c3                                ret     
+
+ 04c7  c6 42 01 00       L59             mov     byte ptr +1H[edx],00H
+
+                tk.s[1]='\0';
+        }
+ 04cb  88 1a                             mov     [edx],bl
+
+        return 0;
+ 04cd  31 c0                             xor     eax,eax
+
+}
+
+ 04cf  83 c4 04          L60             add     esp,00000004H
+ 04d2  5f                                pop     edi
+ 04d3  5e                                pop     esi
+ 04d4  5a                                pop     edx
+ 04d5  59                                pop     ecx
+ 04d6  5b                                pop     ebx
+ 04d7  c3                                ret     
+
+void putToken(const token &tk) {
+ 04d8                    void near putToken( token const near & ):
+ 04d8  52                                push    edx
+
+        if(fputs(tk.s,ofp)==EOF) {
+ 04d9  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 04df  e8 00 00 00 00                    call    fputs_
+ 04e4  83 f8 ff                          cmp     eax,0ffffffffH
+ 04e7  75 14                             jne     L61
+
+                perror("ppnstrip");
+ 04e9  b8 09 00 00 00                    mov     eax,offset L178
+ 04ee  e8 00 00 00 00                    call    perror_
+
+                exit(-1);
+        }
+ 04f3  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 04f8  e8 00 00 00 00                    call    exit_
+
+}
+
+ 04fd  5a                L61             pop     edx
+ 04fe  c3                                ret     
+ 04ff  90                                nop     
+
+void stripPrototype() {
+        //compress  type [modifiers...] name ,
+        //into      type [modifiers] ,
+        //Eg:
+        //  WinFillRect(HPS hps, PRECTL prcl, LONG lColor)
+        //  WinFillRect(HPS hps, RECTL * prcl, LONG lColor)
+        //->
+        //  WinFillRect(HPS,PRECTL,LONG)
+        //  WinFillRect(HPS,RECTL *,LONG)
+        token tk1,tk2;
+        do {    //for each parameter
+
+                //pass through type
+ 0500                    void near stripPrototype():
+ 0500  53                                push    ebx
+ 0501  51                                push    ecx
+ 0502  52                                push    edx
+ 0503  56                                push    esi
+ 0504  57                                push    edi
+ 0505  55                                push    ebp
+ 0506  81 ec 00 02 00 00                 sub     esp,00000200H
+ 050c  bd 0a 00 00 00                    mov     ebp,0000000aH
+ 0511  bb ff ff ff ff                    mov     ebx,0ffffffffH
+
+                skipWhiteNL(0);
+ 0516  31 c0             L62             xor     eax,eax
+ 0518  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+
+                if(getToken(tk1)==EOF) return;
+ 051d  8d 84 24 00 01 00 
+       00                                lea     eax,+100H[esp]
+ 0524  e8 00 00 00 00                    call    int near getToken( token near & )
+ 0529  83 f8 ff                          cmp     eax,0ffffffffH
+ 052c  0f 84 97 01 00 00                 je      L78
+
+                putToken(tk1);
+
+                //get the next two tokens
+ 0532  8d 84 24 00 01 00 
+       00                                lea     eax,+100H[esp]
+ 0539  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 053f  e8 00 00 00 00                    call    fputs_
+ 0544  83 f8 ff                          cmp     eax,0ffffffffH
+ 0547  75 11                             jne     L63
+ 0549  b8 09 00 00 00                    mov     eax,offset L178
+ 054e  e8 00 00 00 00                    call    perror_
+ 0553  89 d8                             mov     eax,ebx
+ 0555  e8 00 00 00 00                    call    exit_
+
+                skipWhiteNL(0);
+ 055a  31 c0             L63             xor     eax,eax
+ 055c  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+
+                if(getToken(tk1)==EOF) return;
+ 0561  8d 84 24 00 01 00 
+       00                                lea     eax,+100H[esp]
+ 0568  e8 00 00 00 00                    call    int near getToken( token near & )
+ 056d  83 f8 ff                          cmp     eax,0ffffffffH
+ 0570  0f 84 53 01 00 00                 je      L78
+
+                getToken(tk2);
+ 0576  89 e0                             mov     eax,esp
+ 0578  e8 00 00 00 00                    call    int near getToken( token near & )
+ 057d  80 3c 24 2c                       cmp     byte ptr [esp],2cH
+ 0581  0f 84 bc 00 00 00                 je      L70
+
+                while(tk2.s[0]!=',' && tk2.s[0]!=')') {
+ 0587  80 3c 24 29       L64             cmp     byte ptr [esp],29H
+ 058b  0f 84 b2 00 00 00                 je      L70
+
+                        putc(' ',ofp);
+ 0591  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0597  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 059b  75 0b                             jne     L65
+ 059d  8b 42 14                          mov     eax,+14H[edx]
+ 05a0  2b 42 04                          sub     eax,+4H[edx]
+ 05a3  83 f8 01                          cmp     eax,00000001H
+ 05a6  77 12                             ja      L66
+ 05a8  b8 20 00 00 00    L65             mov     eax,00000020H
+ 05ad  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 05b3  e8 00 00 00 00                    call    fputc_
+ 05b8  eb 30                             jmp     L68
+ 05ba  8b 02             L66             mov     eax,[edx]
+ 05bc  c6 00 20                          mov     byte ptr [eax],20H
+ 05bf  8b 02                             mov     eax,[edx]
+ 05c1  8a 00                             mov     al,[eax]
+ 05c3  25 ff 00 00 00                    and     eax,000000ffH
+ 05c8  83 f8 0a                          cmp     eax,0000000aH
+ 05cb  75 09                             jne     L67
+ 05cd  89 e8                             mov     eax,ebp
+ 05cf  e8 00 00 00 00                    call    fputc_
+ 05d4  eb 14                             jmp     L68
+ 05d6  8a 42 0d          L67             mov     al,+0dH[edx]
+ 05d9  8b 72 04                          mov     esi,+4H[edx]
+ 05dc  8b 3a                             mov     edi,[edx]
+ 05de  0c 10                             or      al,10H
+ 05e0  46                                inc     esi
+ 05e1  88 42 0d                          mov     +0dH[edx],al
+ 05e4  47                                inc     edi
+ 05e5  89 72 04                          mov     +4H[edx],esi
+ 05e8  89 3a                             mov     [edx],edi
+
+                        putToken(tk1);
+ 05ea  8d 84 24 00 01 00 
+       00                L68             lea     eax,+100H[esp]
+ 05f1  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 05f7  e8 00 00 00 00                    call    fputs_
+ 05fc  83 f8 ff                          cmp     eax,0ffffffffH
+ 05ff  75 11                             jne     L69
+ 0601  b8 09 00 00 00                    mov     eax,offset L178
+ 0606  e8 00 00 00 00                    call    perror_
+ 060b  89 d8                             mov     eax,ebx
+ 060d  e8 00 00 00 00                    call    exit_
+
+                        tk1=tk2;
+ 0612  b9 40 00 00 00    L69             mov     ecx,00000040H
+ 0617  8d bc 24 00 01 00 
+       00                                lea     edi,+100H[esp]
+ 061e  89 e6                             mov     esi,esp
+
+                        skipWhiteNL(0);
+ 0620  31 c0                             xor     eax,eax
+ 0622  f3 a5                             repe    movsd    
+ 0624  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+
+                        if(getToken(tk2)==EOF) return;
+                }
+
+                //Was the last token a modifer or a name?
+ 0629  89 e0                             mov     eax,esp
+ 062b  e8 00 00 00 00                    call    int near getToken( token near & )
+ 0630  83 f8 ff                          cmp     eax,0ffffffffH
+ 0633  0f 84 90 00 00 00                 je      L78
+ 0639  80 3c 24 2c                       cmp     byte ptr [esp],2cH
+ 063d  0f 85 44 ff ff ff                 jne     L64
+
+                if(isLegalFirstChar(tk1.s[0])) {
+                        //a name - must be a parameter name
+                } else {
+                        //a type modifier (such as * or &)
+ 0643  31 c0             L70             xor     eax,eax
+ 0645  8a 84 24 00 01 00 
+       00                                mov     al,+100H[esp]
+ 064c  89 c2                             mov     edx,eax
+ 064e  83 f8 61                          cmp     eax,00000061H
+ 0651  7c 05                             jl      L71
+ 0653  83 f8 7a                          cmp     eax,0000007aH
+ 0656  7e 0f                             jle     L73
+ 0658  83 fa 41          L71             cmp     edx,00000041H
+ 065b  7c 05                             jl      L72
+ 065d  83 fa 5a                          cmp     edx,0000005aH
+ 0660  7e 05                             jle     L73
+ 0662  83 fa 5f          L72             cmp     edx,0000005fH
+ 0665  75 07                             jne     L74
+ 0667  b8 01 00 00 00    L73             mov     eax,00000001H
+ 066c  eb 02                             jmp     L75
+ 066e  31 c0             L74             xor     eax,eax
+ 0670  85 c0             L75             test    eax,eax
+ 0672  75 28                             jne     L76
+
+                        putToken(tk1);
+                }
+                //output the comma or rparen
+ 0674  8d 84 24 00 01 00 
+       00                                lea     eax,+100H[esp]
+ 067b  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0681  e8 00 00 00 00                    call    fputs_
+ 0686  83 f8 ff                          cmp     eax,0ffffffffH
+ 0689  75 11                             jne     L76
+ 068b  b8 09 00 00 00                    mov     eax,offset L178
+ 0690  e8 00 00 00 00                    call    perror_
+ 0695  89 d8                             mov     eax,ebx
+ 0697  e8 00 00 00 00                    call    exit_
+
+                putToken(tk2);
+ 069c  89 e0             L76             mov     eax,esp
+ 069e  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 06a4  e8 00 00 00 00                    call    fputs_
+ 06a9  83 f8 ff                          cmp     eax,0ffffffffH
+ 06ac  75 11                             jne     L77
+ 06ae  b8 09 00 00 00                    mov     eax,offset L178
+ 06b3  e8 00 00 00 00                    call    perror_
+ 06b8  89 d8                             mov     eax,ebx
+ 06ba  e8 00 00 00 00                    call    exit_
+
+        } while(tk2.s[0]!=')');
+ 06bf  80 3c 24 29       L77             cmp     byte ptr [esp],29H
+ 06c3  0f 85 4d fe ff ff                 jne     L62
+
+}
+
+ 06c9  81 c4 00 02 00 00 L78             add     esp,00000200H
+ 06cf  5d                                pop     ebp
+ 06d0  5f                                pop     edi
+ 06d1  5e                                pop     esi
+ 06d2  5a                                pop     edx
+ 06d3  59                                pop     ecx
+ 06d4  5b                                pop     ebx
+ 06d5  c3                                ret     
+ 06d6  8b c0                             mov     eax,eax
+
+void stripPPN() {
+        token tk;
+        for(;;) {
+ 06d8                    void near stripPPN():
+ 06d8  53                                push    ebx
+ 06d9  51                                push    ecx
+ 06da  52                                push    edx
+ 06db  56                                push    esi
+ 06dc  57                                push    edi
+ 06dd  55                                push    ebp
+ 06de  81 ec 00 03 00 00                 sub     esp,00000300H
+ 06e4  bd ff ff ff ff                    mov     ebp,0ffffffffH
+
+                skipWhiteNL(1);
+ 06e9  b8 01 00 00 00    L79             mov     eax,00000001H
+ 06ee  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+
+                if(getToken(tk)==EOF) return;
+ 06f3  89 e0                             mov     eax,esp
+ 06f5  e8 00 00 00 00                    call    int near getToken( token near & )
+ 06fa  83 f8 ff                          cmp     eax,0ffffffffH
+ 06fd  0f 84 3e 03 00 00                 je      L109
+
+                if(tk.s[0]=='#') {
+ 0703  80 3c 24 23                       cmp     byte ptr [esp],23H
+ 0707  75 2a                             jne     L81
+
+                        putToken(tk);
+ 0709  89 e0                             mov     eax,esp
+ 070b  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0711  e8 00 00 00 00                    call    fputs_
+ 0716  83 f8 ff                          cmp     eax,0ffffffffH
+ 0719  75 11                             jne     L80
+ 071b  b8 09 00 00 00                    mov     eax,offset L178
+ 0720  e8 00 00 00 00                    call    perror_
+ 0725  89 e8                             mov     eax,ebp
+ 0727  e8 00 00 00 00                    call    exit_
+
+                        passThroughPPD();
+ 072c  e8 00 00 00 00    L80             call    void near passThroughPPD()
+
+                } else if(strcmp(tk.s,"typedef")==0) {
+ 0731  eb b6                             jmp     L79
+ 0733  ba 12 00 00 00    L81             mov     edx,offset L179
+ 0738  89 e0                             mov     eax,esp
+ 073a  e8 00 00 00 00                    call    strcmp_
+ 073f  85 c0                             test    eax,eax
+ 0741  0f 85 f2 00 00 00                 jne     L91
+
+                        putToken(tk);
+ 0747  89 e0                             mov     eax,esp
+ 0749  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 074f  e8 00 00 00 00                    call    fputs_
+ 0754  83 f8 ff                          cmp     eax,0ffffffffH
+ 0757  75 11                             jne     L82
+ 0759  b8 09 00 00 00                    mov     eax,offset L178
+ 075e  e8 00 00 00 00                    call    perror_
+ 0763  89 e8                             mov     eax,ebp
+ 0765  e8 00 00 00 00                    call    exit_
+ 076a  8b 15 00 00 00 00 L82             mov     edx,__iobuf near * near ifp
+ 0770  83 7a 04 00                       cmp     dword ptr +4H[edx],00000000H
+ 0774  7e 19                             jle     L83
+
+                        passThroughTypedef();
+                } else {
+ 0776  f6 42 0c 04                       test    byte ptr +0cH[edx],04H
+ 077a  75 13                             jne     L83
+ 077c  8b 02                             mov     eax,[edx]
+ 077e  8a 00                             mov     al,[eax]
+ 0780  25 ff 00 00 00                    and     eax,000000ffH
+ 0785  83 f8 0d                          cmp     eax,0000000dH
+ 0788  74 05                             je      L83
+ 078a  83 f8 1a                          cmp     eax,0000001aH
+ 078d  75 0c                             jne     L84
+ 078f  a1 00 00 00 00    L83             mov     eax,__iobuf near * near ifp
+ 0794  e8 00 00 00 00                    call    fgetc_
+ 0799  eb 15                             jmp     L85
+ 079b  8b 4a 04          L84             mov     ecx,+4H[edx]
+ 079e  8b 02                             mov     eax,[edx]
+ 07a0  49                                dec     ecx
+ 07a1  8d 58 01                          lea     ebx,+1H[eax]
+ 07a4  89 4a 04                          mov     +4H[edx],ecx
+ 07a7  89 1a                             mov     [edx],ebx
+ 07a9  8a 00                             mov     al,[eax]
+ 07ab  25 ff 00 00 00                    and     eax,000000ffH
+ 07b0  89 c3             L85             mov     ebx,eax
+ 07b2  83 f8 ff                          cmp     eax,0ffffffffH
+ 07b5  0f 84 2e ff ff ff                 je      L79
+ 07bb  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 07c1  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 07c5  75 0b                             jne     L86
+ 07c7  8b 42 14                          mov     eax,+14H[edx]
+ 07ca  2b 42 04                          sub     eax,+4H[edx]
+ 07cd  83 f8 01                          cmp     eax,00000001H
+ 07d0  77 0f                             ja      L87
+ 07d2  8b 15 00 00 00 00 L86             mov     edx,__iobuf near * near ofp
+ 07d8  89 d8                             mov     eax,ebx
+ 07da  e8 00 00 00 00                    call    fputc_
+ 07df  eb 3b                             jmp     L89
+ 07e1  8b 02             L87             mov     eax,[edx]
+ 07e3  88 18                             mov     [eax],bl
+ 07e5  8b 02                             mov     eax,[edx]
+ 07e7  8a 00                             mov     al,[eax]
+ 07e9  25 ff 00 00 00                    and     eax,000000ffH
+ 07ee  83 f8 0a                          cmp     eax,0000000aH
+ 07f1  75 14                             jne     L88
+ 07f3  e8 00 00 00 00                    call    fputc_
+ 07f8  83 fb 23                          cmp     ebx,00000023H
+ 07fb  75 2e                             jne     L90
+ 07fd  e8 00 00 00 00                    call    void near passThroughPPD()
+ 0802  e9 63 ff ff ff                    jmp     L82
+ 0807  8a 6a 0d          L88             mov     ch,+0dH[edx]
+ 080a  8b 7a 04                          mov     edi,+4H[edx]
+ 080d  8b 02                             mov     eax,[edx]
+ 080f  80 cd 10                          or      ch,10H
+ 0812  47                                inc     edi
+ 0813  88 6a 0d                          mov     +0dH[edx],ch
+ 0816  40                                inc     eax
+ 0817  89 7a 04                          mov     +4H[edx],edi
+ 081a  89 02                             mov     [edx],eax
+ 081c  83 fb 23          L89             cmp     ebx,00000023H
+ 081f  75 0a                             jne     L90
+ 0821  e8 00 00 00 00                    call    void near passThroughPPD()
+ 0826  e9 3f ff ff ff                    jmp     L82
+ 082b  83 fb 3b          L90             cmp     ebx,0000003bH
+ 082e  0f 84 b5 fe ff ff                 je      L79
+ 0834  e9 31 ff ff ff                    jmp     L82
+
+                        putToken(tk);
+ 0839  89 e0             L91             mov     eax,esp
+ 083b  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0841  e8 00 00 00 00                    call    fputs_
+ 0846  83 f8 ff                          cmp     eax,0ffffffffH
+ 0849  75 11                             jne     L92
+ 084b  b8 09 00 00 00                    mov     eax,offset L178
+ 0850  e8 00 00 00 00                    call    perror_
+ 0855  89 e8                             mov     eax,ebp
+ 0857  e8 00 00 00 00                    call    exit_
+
+                        if(tk.s[0]=='(')
+ 085c  80 3c 24 28       L92             cmp     byte ptr [esp],28H
+ 0860  0f 85 83 fe ff ff                 jne     L79
+ 0866  31 c0             L93             xor     eax,eax
+ 0868  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 086d  8d 84 24 00 02 00 
+       00                                lea     eax,+200H[esp]
+ 0874  e8 00 00 00 00                    call    int near getToken( token near & )
+ 0879  83 f8 ff                          cmp     eax,0ffffffffH
+ 087c  0f 84 67 fe ff ff                 je      L79
+
+                                stripPrototype();
+                }
+        }
+ 0882  8d 84 24 00 02 00 
+       00                                lea     eax,+200H[esp]
+ 0889  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 088f  e8 00 00 00 00                    call    fputs_
+ 0894  83 f8 ff                          cmp     eax,0ffffffffH
+ 0897  75 11                             jne     L94
+ 0899  b8 09 00 00 00                    mov     eax,offset L178
+ 089e  e8 00 00 00 00                    call    perror_
+ 08a3  89 e8                             mov     eax,ebp
+ 08a5  e8 00 00 00 00                    call    exit_
+ 08aa  31 c0             L94             xor     eax,eax
+ 08ac  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 08b1  8d 84 24 00 02 00 
+       00                                lea     eax,+200H[esp]
+ 08b8  e8 00 00 00 00                    call    int near getToken( token near & )
+ 08bd  83 f8 ff                          cmp     eax,0ffffffffH
+ 08c0  0f 84 23 fe ff ff                 je      L79
+ 08c6  8d 84 24 00 01 00 
+       00                                lea     eax,+100H[esp]
+ 08cd  e8 00 00 00 00                    call    int near getToken( token near & )
+ 08d2  80 bc 24 00 01 00 
+       00 2c                             cmp     byte ptr +100H[esp],2cH
+ 08da  0f 84 cd 00 00 00                 je      L101
+ 08e0  80 bc 24 00 01 00 
+       00 29             L95             cmp     byte ptr +100H[esp],29H
+ 08e8  0f 84 bf 00 00 00                 je      L101
+ 08ee  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 08f4  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 08f8  75 0b                             jne     L96
+ 08fa  8b 42 14                          mov     eax,+14H[edx]
+ 08fd  2b 42 04                          sub     eax,+4H[edx]
+ 0900  83 f8 01                          cmp     eax,00000001H
+ 0903  77 12                             ja      L97
+ 0905  b8 20 00 00 00    L96             mov     eax,00000020H
+ 090a  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0910  e8 00 00 00 00                    call    fputc_
+ 0915  eb 2f                             jmp     L99
+ 0917  8b 02             L97             mov     eax,[edx]
+ 0919  c6 00 20                          mov     byte ptr [eax],20H
+ 091c  8b 02                             mov     eax,[edx]
+ 091e  8a 00                             mov     al,[eax]
+ 0920  25 ff 00 00 00                    and     eax,000000ffH
+ 0925  83 f8 0a                          cmp     eax,0000000aH
+ 0928  75 07                             jne     L98
+ 092a  e8 00 00 00 00                    call    fputc_
+ 092f  eb 15                             jmp     L99
+ 0931  8a 7a 0d          L98             mov     bh,+0dH[edx]
+ 0934  8b 4a 04                          mov     ecx,+4H[edx]
+ 0937  8b 32                             mov     esi,[edx]
+ 0939  80 cf 10                          or      bh,10H
+ 093c  41                                inc     ecx
+ 093d  88 7a 0d                          mov     +0dH[edx],bh
+ 0940  46                                inc     esi
+ 0941  89 4a 04                          mov     +4H[edx],ecx
+ 0944  89 32                             mov     [edx],esi
+ 0946  8d 84 24 00 02 00 
+       00                L99             lea     eax,+200H[esp]
+ 094d  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0953  e8 00 00 00 00                    call    fputs_
+ 0958  83 f8 ff                          cmp     eax,0ffffffffH
+ 095b  75 11                             jne     L100
+ 095d  b8 09 00 00 00                    mov     eax,offset L178
+ 0962  e8 00 00 00 00                    call    perror_
+ 0967  89 e8                             mov     eax,ebp
+ 0969  e8 00 00 00 00                    call    exit_
+ 096e  b9 40 00 00 00    L100            mov     ecx,00000040H
+ 0973  8d bc 24 00 02 00 
+       00                                lea     edi,+200H[esp]
+ 097a  8d b4 24 00 01 00 
+       00                                lea     esi,+100H[esp]
+ 0981  31 c0                             xor     eax,eax
+ 0983  f3 a5                             repe    movsd    
+ 0985  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 098a  8d 84 24 00 01 00 
+       00                                lea     eax,+100H[esp]
+ 0991  e8 00 00 00 00                    call    int near getToken( token near & )
+ 0996  83 f8 ff                          cmp     eax,0ffffffffH
+ 0999  0f 84 4a fd ff ff                 je      L79
+ 099f  80 bc 24 00 01 00 
+       00 2c                             cmp     byte ptr +100H[esp],2cH
+ 09a7  0f 85 33 ff ff ff                 jne     L95
+ 09ad  31 d2             L101            xor     edx,edx
+ 09af  8a 94 24 00 02 00 
+       00                                mov     dl,+200H[esp]
+ 09b6  89 d0                             mov     eax,edx
+ 09b8  83 fa 61                          cmp     edx,00000061H
+ 09bb  7c 05                             jl      L102
+ 09bd  83 fa 7a                          cmp     edx,0000007aH
+ 09c0  7e 0f                             jle     L104
+ 09c2  83 f8 41          L102            cmp     eax,00000041H
+ 09c5  7c 05                             jl      L103
+ 09c7  83 f8 5a                          cmp     eax,0000005aH
+ 09ca  7e 05                             jle     L104
+ 09cc  83 f8 5f          L103            cmp     eax,0000005fH
+ 09cf  75 07                             jne     L105
+ 09d1  b8 01 00 00 00    L104            mov     eax,00000001H
+ 09d6  eb 02                             jmp     L106
+ 09d8  31 c0             L105            xor     eax,eax
+ 09da  85 c0             L106            test    eax,eax
+ 09dc  75 28                             jne     L107
+ 09de  8d 84 24 00 02 00 
+       00                                lea     eax,+200H[esp]
+ 09e5  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 09eb  e8 00 00 00 00                    call    fputs_
+ 09f0  83 f8 ff                          cmp     eax,0ffffffffH
+ 09f3  75 11                             jne     L107
+ 09f5  b8 09 00 00 00                    mov     eax,offset L178
+ 09fa  e8 00 00 00 00                    call    perror_
+ 09ff  89 e8                             mov     eax,ebp
+ 0a01  e8 00 00 00 00                    call    exit_
+ 0a06  8d 84 24 00 01 00 
+       00                L107            lea     eax,+100H[esp]
+ 0a0d  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0a13  e8 00 00 00 00                    call    fputs_
+ 0a18  83 f8 ff                          cmp     eax,0ffffffffH
+ 0a1b  75 11                             jne     L108
+ 0a1d  b8 09 00 00 00                    mov     eax,offset L178
+ 0a22  e8 00 00 00 00                    call    perror_
+ 0a27  89 e8                             mov     eax,ebp
+ 0a29  e8 00 00 00 00                    call    exit_
+ 0a2e  80 bc 24 00 01 00 
+       00 29             L108            cmp     byte ptr +100H[esp],29H
+ 0a36  0f 85 2a fe ff ff                 jne     L93
+ 0a3c  e9 a8 fc ff ff                    jmp     L79
+
+}
+
+
+
+
+ 0a41  81 c4 00 03 00 00 L109            add     esp,00000300H
+ 0a47  5d                                pop     ebp
+ 0a48  5f                                pop     edi
+ 0a49  5e                                pop     esi
+ 0a4a  5a                                pop     edx
+ 0a4b  59                                pop     ecx
+ 0a4c  5b                                pop     ebx
+ 0a4d  c3                                ret     
+ 0a4e  8b c0                             mov     eax,eax
+
+int main(int argc, char *argv[]) {
+ 0a50  53                main_           push    ebx
+ 0a51  51                                push    ecx
+ 0a52  56                                push    esi
+ 0a53  57                                push    edi
+ 0a54  55                                push    ebp
+ 0a55  81 ec 00 06 00 00                 sub     esp,00000600H
+ 0a5b  89 d3                             mov     ebx,edx
+
+        if(argc==2 && argv[1][0]=='-' && argv[1][1]=='p' && argv[1][2]=='\0') {
+                //pipe
+ 0a5d  83 f8 02                          cmp     eax,00000002H
+ 0a60  0f 85 93 03 00 00                 jne     L140
+ 0a66  8b 52 04                          mov     edx,+4H[edx]
+ 0a69  80 3a 2d                          cmp     byte ptr [edx],2dH
+ 0a6c  0f 85 87 03 00 00                 jne     L140
+ 0a72  80 7a 01 70                       cmp     byte ptr +1H[edx],70H
+ 0a76  0f 85 7d 03 00 00                 jne     L140
+ 0a7c  80 7a 02 00                       cmp     byte ptr +2H[edx],00H
+ 0a80  0f 85 73 03 00 00                 jne     L140
+
+                ifp=stdin;
+ 0a86  be 00 00 00 00                    mov     esi,offset ___iob
+
+                ofp=stdout;
+                stripPPN();
+        } else {
+ 0a8b  bf 1a 00 00 00                    mov     edi,offset ___iob+1aH
+ 0a90  89 35 00 00 00 00                 mov     __iobuf near * near ifp,esi
+ 0a96  89 3d 00 00 00 00                 mov     __iobuf near * near ofp,edi
+ 0a9c  bd ff ff ff ff                    mov     ebp,0ffffffffH
+ 0aa1  b8 01 00 00 00    L110            mov     eax,00000001H
+ 0aa6  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 0aab  89 e0                             mov     eax,esp
+ 0aad  e8 00 00 00 00                    call    int near getToken( token near & )
+ 0ab2  83 f8 ff                          cmp     eax,0ffffffffH
+ 0ab5  0f 84 aa 07 00 00                 je      L175
+ 0abb  80 3c 24 23                       cmp     byte ptr [esp],23H
+ 0abf  75 2a                             jne     L112
+ 0ac1  89 e0                             mov     eax,esp
+ 0ac3  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0ac9  e8 00 00 00 00                    call    fputs_
+ 0ace  83 f8 ff                          cmp     eax,0ffffffffH
+ 0ad1  75 11                             jne     L111
+ 0ad3  b8 09 00 00 00                    mov     eax,offset L178
+ 0ad8  e8 00 00 00 00                    call    perror_
+ 0add  89 e8                             mov     eax,ebp
+ 0adf  e8 00 00 00 00                    call    exit_
+ 0ae4  e8 00 00 00 00    L111            call    void near passThroughPPD()
+ 0ae9  eb b6                             jmp     L110
+ 0aeb  ba 12 00 00 00    L112            mov     edx,offset L179
+ 0af0  89 e0                             mov     eax,esp
+ 0af2  e8 00 00 00 00                    call    strcmp_
+ 0af7  85 c0                             test    eax,eax
+ 0af9  0f 85 f2 00 00 00                 jne     L122
+ 0aff  89 e0                             mov     eax,esp
+ 0b01  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0b07  e8 00 00 00 00                    call    fputs_
+ 0b0c  83 f8 ff                          cmp     eax,0ffffffffH
+ 0b0f  75 11                             jne     L113
+ 0b11  b8 09 00 00 00                    mov     eax,offset L178
+ 0b16  e8 00 00 00 00                    call    perror_
+ 0b1b  89 e8                             mov     eax,ebp
+ 0b1d  e8 00 00 00 00                    call    exit_
+ 0b22  8b 15 00 00 00 00 L113            mov     edx,__iobuf near * near ifp
+ 0b28  8b 7a 04                          mov     edi,+4H[edx]
+ 0b2b  85 ff                             test    edi,edi
+ 0b2d  7e 19                             jle     L114
+ 0b2f  f6 42 0c 04                       test    byte ptr +0cH[edx],04H
+ 0b33  75 13                             jne     L114
+ 0b35  8b 02                             mov     eax,[edx]
+ 0b37  8a 00                             mov     al,[eax]
+ 0b39  25 ff 00 00 00                    and     eax,000000ffH
+ 0b3e  83 f8 0d                          cmp     eax,0000000dH
+ 0b41  74 05                             je      L114
+ 0b43  83 f8 1a                          cmp     eax,0000001aH
+ 0b46  75 0c                             jne     L115
+ 0b48  a1 00 00 00 00    L114            mov     eax,__iobuf near * near ifp
+ 0b4d  e8 00 00 00 00                    call    fgetc_
+ 0b52  eb 14                             jmp     L116
+ 0b54  8d 47 ff          L115            lea     eax,-1H[edi]
+ 0b57  89 42 04                          mov     +4H[edx],eax
+ 0b5a  8b 02                             mov     eax,[edx]
+ 0b5c  8d 58 01                          lea     ebx,+1H[eax]
+ 0b5f  89 1a                             mov     [edx],ebx
+ 0b61  8a 00                             mov     al,[eax]
+ 0b63  25 ff 00 00 00                    and     eax,000000ffH
+ 0b68  89 c3             L116            mov     ebx,eax
+ 0b6a  83 f8 ff                          cmp     eax,0ffffffffH
+ 0b6d  0f 84 2e ff ff ff                 je      L110
+ 0b73  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0b79  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 0b7d  75 0b                             jne     L117
+ 0b7f  8b 42 14                          mov     eax,+14H[edx]
+ 0b82  2b 42 04                          sub     eax,+4H[edx]
+ 0b85  83 f8 01                          cmp     eax,00000001H
+ 0b88  77 0f                             ja      L118
+ 0b8a  8b 15 00 00 00 00 L117            mov     edx,__iobuf near * near ofp
+ 0b90  89 d8                             mov     eax,ebx
+ 0b92  e8 00 00 00 00                    call    fputc_
+ 0b97  eb 3b                             jmp     L120
+ 0b99  8b 02             L118            mov     eax,[edx]
+ 0b9b  88 18                             mov     [eax],bl
+ 0b9d  8b 02                             mov     eax,[edx]
+ 0b9f  8a 00                             mov     al,[eax]
+ 0ba1  25 ff 00 00 00                    and     eax,000000ffH
+ 0ba6  83 f8 0a                          cmp     eax,0000000aH
+ 0ba9  75 14                             jne     L119
+ 0bab  e8 00 00 00 00                    call    fputc_
+ 0bb0  83 fb 23                          cmp     ebx,00000023H
+ 0bb3  75 2e                             jne     L121
+ 0bb5  e8 00 00 00 00                    call    void near passThroughPPD()
+ 0bba  e9 63 ff ff ff                    jmp     L113
+ 0bbf  8a 4a 0d          L119            mov     cl,+0dH[edx]
+ 0bc2  8b 72 04                          mov     esi,+4H[edx]
+ 0bc5  8b 3a                             mov     edi,[edx]
+ 0bc7  80 c9 10                          or      cl,10H
+ 0bca  46                                inc     esi
+ 0bcb  88 4a 0d                          mov     +0dH[edx],cl
+ 0bce  47                                inc     edi
+ 0bcf  89 72 04                          mov     +4H[edx],esi
+ 0bd2  89 3a                             mov     [edx],edi
+ 0bd4  83 fb 23          L120            cmp     ebx,00000023H
+ 0bd7  75 0a                             jne     L121
+ 0bd9  e8 00 00 00 00                    call    void near passThroughPPD()
+ 0bde  e9 3f ff ff ff                    jmp     L113
+ 0be3  83 fb 3b          L121            cmp     ebx,0000003bH
+ 0be6  0f 84 b5 fe ff ff                 je      L110
+ 0bec  e9 31 ff ff ff                    jmp     L113
+ 0bf1  89 e0             L122            mov     eax,esp
+ 0bf3  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0bf9  e8 00 00 00 00                    call    fputs_
+ 0bfe  83 f8 ff                          cmp     eax,0ffffffffH
+ 0c01  75 11                             jne     L123
+ 0c03  b8 09 00 00 00                    mov     eax,offset L178
+ 0c08  e8 00 00 00 00                    call    perror_
+ 0c0d  89 e8                             mov     eax,ebp
+ 0c0f  e8 00 00 00 00                    call    exit_
+ 0c14  80 3c 24 28       L123            cmp     byte ptr [esp],28H
+ 0c18  0f 85 83 fe ff ff                 jne     L110
+ 0c1e  31 c0             L124            xor     eax,eax
+ 0c20  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 0c25  8d 84 24 00 04 00 
+       00                                lea     eax,+400H[esp]
+ 0c2c  e8 00 00 00 00                    call    int near getToken( token near & )
+ 0c31  83 f8 ff                          cmp     eax,0ffffffffH
+ 0c34  0f 84 67 fe ff ff                 je      L110
+ 0c3a  8d 84 24 00 04 00 
+       00                                lea     eax,+400H[esp]
+ 0c41  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0c47  e8 00 00 00 00                    call    fputs_
+ 0c4c  83 f8 ff                          cmp     eax,0ffffffffH
+ 0c4f  75 11                             jne     L125
+ 0c51  b8 09 00 00 00                    mov     eax,offset L178
+ 0c56  e8 00 00 00 00                    call    perror_
+ 0c5b  89 e8                             mov     eax,ebp
+ 0c5d  e8 00 00 00 00                    call    exit_
+ 0c62  31 c0             L125            xor     eax,eax
+ 0c64  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 0c69  8d 84 24 00 04 00 
+       00                                lea     eax,+400H[esp]
+ 0c70  e8 00 00 00 00                    call    int near getToken( token near & )
+ 0c75  83 f8 ff                          cmp     eax,0ffffffffH
+ 0c78  0f 84 23 fe ff ff                 je      L110
+ 0c7e  8d 84 24 00 01 00 
+       00                                lea     eax,+100H[esp]
+ 0c85  e8 00 00 00 00                    call    int near getToken( token near & )
+ 0c8a  80 bc 24 00 01 00 
+       00 2c                             cmp     byte ptr +100H[esp],2cH
+ 0c92  0f 84 cd 00 00 00                 je      L132
+ 0c98  80 bc 24 00 01 00 
+       00 29             L126            cmp     byte ptr +100H[esp],29H
+ 0ca0  0f 84 bf 00 00 00                 je      L132
+ 0ca6  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0cac  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 0cb0  75 0b                             jne     L127
+ 0cb2  8b 5a 14                          mov     ebx,+14H[edx]
+ 0cb5  2b 5a 04                          sub     ebx,+4H[edx]
+ 0cb8  83 fb 01                          cmp     ebx,00000001H
+ 0cbb  77 12                             ja      L128
+ 0cbd  b8 20 00 00 00    L127            mov     eax,00000020H
+ 0cc2  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0cc8  e8 00 00 00 00                    call    fputc_
+ 0ccd  eb 2f                             jmp     L130
+ 0ccf  8b 02             L128            mov     eax,[edx]
+ 0cd1  c6 00 20                          mov     byte ptr [eax],20H
+ 0cd4  8b 02                             mov     eax,[edx]
+ 0cd6  8a 00                             mov     al,[eax]
+ 0cd8  25 ff 00 00 00                    and     eax,000000ffH
+ 0cdd  83 f8 0a                          cmp     eax,0000000aH
+ 0ce0  75 07                             jne     L129
+ 0ce2  e8 00 00 00 00                    call    fputc_
+ 0ce7  eb 15                             jmp     L130
+ 0ce9  8a 7a 0d          L129            mov     bh,+0dH[edx]
+ 0cec  80 cf 10                          or      bh,10H
+ 0cef  8b 0a                             mov     ecx,[edx]
+ 0cf1  88 7a 0d                          mov     +0dH[edx],bh
+ 0cf4  41                                inc     ecx
+ 0cf5  8b 5a 04                          mov     ebx,+4H[edx]
+ 0cf8  89 0a                             mov     [edx],ecx
+ 0cfa  43                                inc     ebx
+ 0cfb  89 5a 04                          mov     +4H[edx],ebx
+ 0cfe  8d 84 24 00 04 00 
+       00                L130            lea     eax,+400H[esp]
+ 0d05  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0d0b  e8 00 00 00 00                    call    fputs_
+ 0d10  83 f8 ff                          cmp     eax,0ffffffffH
+ 0d13  75 11                             jne     L131
+ 0d15  b8 09 00 00 00                    mov     eax,offset L178
+ 0d1a  e8 00 00 00 00                    call    perror_
+ 0d1f  89 e8                             mov     eax,ebp
+ 0d21  e8 00 00 00 00                    call    exit_
+ 0d26  b9 40 00 00 00    L131            mov     ecx,00000040H
+ 0d2b  8d bc 24 00 04 00 
+       00                                lea     edi,+400H[esp]
+ 0d32  8d b4 24 00 01 00 
+       00                                lea     esi,+100H[esp]
+ 0d39  31 c0                             xor     eax,eax
+ 0d3b  f3 a5                             repe    movsd    
+ 0d3d  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 0d42  8d 84 24 00 01 00 
+       00                                lea     eax,+100H[esp]
+ 0d49  e8 00 00 00 00                    call    int near getToken( token near & )
+ 0d4e  83 f8 ff                          cmp     eax,0ffffffffH
+ 0d51  0f 84 4a fd ff ff                 je      L110
+ 0d57  80 bc 24 00 01 00 
+       00 2c                             cmp     byte ptr +100H[esp],2cH
+ 0d5f  0f 85 33 ff ff ff                 jne     L126
+ 0d65  31 c0             L132            xor     eax,eax
+ 0d67  8a 84 24 00 04 00 
+       00                                mov     al,+400H[esp]
+ 0d6e  89 c2                             mov     edx,eax
+ 0d70  83 f8 61                          cmp     eax,00000061H
+ 0d73  7c 05                             jl      L133
+ 0d75  83 f8 7a                          cmp     eax,0000007aH
+ 0d78  7e 0f                             jle     L135
+ 0d7a  83 fa 41          L133            cmp     edx,00000041H
+ 0d7d  7c 05                             jl      L134
+ 0d7f  83 fa 5a                          cmp     edx,0000005aH
+ 0d82  7e 05                             jle     L135
+ 0d84  83 fa 5f          L134            cmp     edx,0000005fH
+ 0d87  75 07                             jne     L136
+ 0d89  b8 01 00 00 00    L135            mov     eax,00000001H
+ 0d8e  eb 02                             jmp     L137
+ 0d90  31 c0             L136            xor     eax,eax
+ 0d92  85 c0             L137            test    eax,eax
+ 0d94  75 28                             jne     L138
+ 0d96  8d 84 24 00 04 00 
+       00                                lea     eax,+400H[esp]
+ 0d9d  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0da3  e8 00 00 00 00                    call    fputs_
+ 0da8  83 f8 ff                          cmp     eax,0ffffffffH
+ 0dab  75 11                             jne     L138
+ 0dad  b8 09 00 00 00                    mov     eax,offset L178
+ 0db2  e8 00 00 00 00                    call    perror_
+ 0db7  89 e8                             mov     eax,ebp
+ 0db9  e8 00 00 00 00                    call    exit_
+ 0dbe  8d 84 24 00 01 00 
+       00                L138            lea     eax,+100H[esp]
+ 0dc5  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0dcb  e8 00 00 00 00                    call    fputs_
+ 0dd0  83 f8 ff                          cmp     eax,0ffffffffH
+ 0dd3  75 11                             jne     L139
+ 0dd5  b8 09 00 00 00                    mov     eax,offset L178
+ 0dda  e8 00 00 00 00                    call    perror_
+ 0ddf  89 e8                             mov     eax,ebp
+ 0de1  e8 00 00 00 00                    call    exit_
+ 0de6  80 bc 24 00 01 00 
+       00 29             L139            cmp     byte ptr +100H[esp],29H
+ 0dee  0f 85 2a fe ff ff                 jne     L124
+ 0df4  e9 a8 fc ff ff                    jmp     L110
+
+                if(argc!=3) {
+ 0df9  83 f8 03          L140            cmp     eax,00000003H
+ 0dfc  74 17                             je      L141
+
+                        printf("Usage: ppnstrip <infile> <outfile>\n");
+ 0dfe  68 1a 00 00 00                    push    offset L180
+ 0e03  e8 00 00 00 00                    call    printf_
+
+                        return -1;
+ 0e08  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 0e0d  83 c4 04                          add     esp,00000004H
+ 0e10  e9 52 04 00 00                    jmp     L176
+
+                }
+ 0e15  ba 3e 00 00 00    L141            mov     edx,offset L181
+
+                ifp=fopen(argv[1],"rt");
+ 0e1a  8b 43 04                          mov     eax,+4H[ebx]
+ 0e1d  e8 00 00 00 00                    call    fopen_
+ 0e22  a3 00 00 00 00                    mov     __iobuf near * near ifp,eax
+
+                if(!ifp) {
+ 0e27  85 c0                             test    eax,eax
+ 0e29  75 27                             jne     L142
+
+                        fprintf(stderr,"ppnstrip: could not open '%s'\n",argv[1]);
+ 0e2b  8b 53 04                          mov     edx,+4H[ebx]
+ 0e2e  52                                push    edx
+ 0e2f  68 41 00 00 00                    push    offset L182
+ 0e34  68 34 00 00 00                    push    offset ___iob+34H
+ 0e39  e8 00 00 00 00                    call    fprintf_
+
+                        return -1;
+ 0e3e  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 0e43  83 c4 0c                          add     esp,0000000cH
+ 0e46  81 c4 00 06 00 00                 add     esp,00000600H
+ 0e4c  5d                                pop     ebp
+ 0e4d  5f                                pop     edi
+ 0e4e  5e                                pop     esi
+ 0e4f  59                                pop     ecx
+ 0e50  5b                                pop     ebx
+ 0e51  c3                                ret     
+
+                }
+ 0e52  ba 60 00 00 00    L142            mov     edx,offset L183
+
+                ofp=fopen(argv[2],"wt");
+ 0e57  8b 43 08                          mov     eax,+8H[ebx]
+ 0e5a  e8 00 00 00 00                    call    fopen_
+ 0e5f  a3 00 00 00 00                    mov     __iobuf near * near ofp,eax
+
+                if(!ofp) {
+ 0e64  85 c0                             test    eax,eax
+ 0e66  75 27                             jne     L143
+
+                        fprintf(stderr,"ppnstrip: could not create '%s'\n",argv[2]);
+ 0e68  8b 4b 08                          mov     ecx,+8H[ebx]
+ 0e6b  51                                push    ecx
+ 0e6c  68 63 00 00 00                    push    offset L184
+ 0e71  68 34 00 00 00                    push    offset ___iob+34H
+ 0e76  e8 00 00 00 00                    call    fprintf_
+
+                        return -1;
+ 0e7b  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 0e80  83 c4 0c                          add     esp,0000000cH
+ 0e83  81 c4 00 06 00 00                 add     esp,00000600H
+ 0e89  5d                                pop     ebp
+ 0e8a  5f                                pop     edi
+ 0e8b  5e                                pop     esi
+ 0e8c  59                                pop     ecx
+ 0e8d  5b                                pop     ebx
+ 0e8e  c3                                ret     
+
+                }
+
+ 0e8f  b9 00 10 00 00    L143            mov     ecx,00001000H
+ 0e94  bb 00 01 00 00                    mov     ebx,00000100H
+
+                setvbuf(ifp,NULL,_IOFBF,4096);
+ 0e99  a1 00 00 00 00                    mov     eax,__iobuf near * near ifp
+ 0e9e  31 d2                             xor     edx,edx
+ 0ea0  e8 00 00 00 00                    call    setvbuf_
+ 0ea5  b9 00 10 00 00                    mov     ecx,00001000H
+ 0eaa  bb 00 01 00 00                    mov     ebx,00000100H
+
+                setvbuf(ofp,NULL,_IOFBF,4096);
+                stripPPN();
+
+ 0eaf  a1 00 00 00 00                    mov     eax,__iobuf near * near ofp
+ 0eb4  31 d2                             xor     edx,edx
+ 0eb6  e8 00 00 00 00                    call    setvbuf_
+ 0ebb  bd ff ff ff ff                    mov     ebp,0ffffffffH
+ 0ec0  b8 01 00 00 00    L144            mov     eax,00000001H
+ 0ec5  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 0eca  8d 84 24 00 05 00 
+       00                                lea     eax,+500H[esp]
+ 0ed1  e8 00 00 00 00                    call    int near getToken( token near & )
+ 0ed6  83 f8 ff                          cmp     eax,0ffffffffH
+ 0ed9  0f 84 5a 03 00 00                 je      L174
+ 0edf  80 bc 24 00 05 00 
+       00 23                             cmp     byte ptr +500H[esp],23H
+ 0ee7  75 2f                             jne     L146
+ 0ee9  8d 84 24 00 05 00 
+       00                                lea     eax,+500H[esp]
+ 0ef0  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0ef6  e8 00 00 00 00                    call    fputs_
+ 0efb  83 f8 ff                          cmp     eax,0ffffffffH
+ 0efe  75 11                             jne     L145
+ 0f00  b8 09 00 00 00                    mov     eax,offset L178
+ 0f05  e8 00 00 00 00                    call    perror_
+ 0f0a  89 e8                             mov     eax,ebp
+ 0f0c  e8 00 00 00 00                    call    exit_
+ 0f11  e8 00 00 00 00    L145            call    void near passThroughPPD()
+ 0f16  eb a8                             jmp     L144
+ 0f18  ba 12 00 00 00    L146            mov     edx,offset L179
+ 0f1d  8d 84 24 00 05 00 
+       00                                lea     eax,+500H[esp]
+ 0f24  e8 00 00 00 00                    call    strcmp_
+ 0f29  85 c0                             test    eax,eax
+ 0f2b  0f 85 f7 00 00 00                 jne     L156
+ 0f31  8d 84 24 00 05 00 
+       00                                lea     eax,+500H[esp]
+ 0f38  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0f3e  e8 00 00 00 00                    call    fputs_
+ 0f43  83 f8 ff                          cmp     eax,0ffffffffH
+ 0f46  75 11                             jne     L147
+ 0f48  b8 09 00 00 00                    mov     eax,offset L178
+ 0f4d  e8 00 00 00 00                    call    perror_
+ 0f52  89 e8                             mov     eax,ebp
+ 0f54  e8 00 00 00 00                    call    exit_
+ 0f59  8b 15 00 00 00 00 L147            mov     edx,__iobuf near * near ifp
+ 0f5f  83 7a 04 00                       cmp     dword ptr +4H[edx],00000000H
+ 0f63  7e 19                             jle     L148
+ 0f65  f6 42 0c 04                       test    byte ptr +0cH[edx],04H
+ 0f69  75 13                             jne     L148
+ 0f6b  8b 02                             mov     eax,[edx]
+ 0f6d  8a 00                             mov     al,[eax]
+ 0f6f  25 ff 00 00 00                    and     eax,000000ffH
+ 0f74  83 f8 0d                          cmp     eax,0000000dH
+ 0f77  74 05                             je      L148
+ 0f79  83 f8 1a                          cmp     eax,0000001aH
+ 0f7c  75 0c                             jne     L149
+ 0f7e  a1 00 00 00 00    L148            mov     eax,__iobuf near * near ifp
+ 0f83  e8 00 00 00 00                    call    fgetc_
+ 0f88  eb 15                             jmp     L150
+ 0f8a  8b 5a 04          L149            mov     ebx,+4H[edx]
+ 0f8d  4b                                dec     ebx
+ 0f8e  8b 02                             mov     eax,[edx]
+ 0f90  89 5a 04                          mov     +4H[edx],ebx
+ 0f93  8d 58 01                          lea     ebx,+1H[eax]
+ 0f96  89 1a                             mov     [edx],ebx
+ 0f98  8a 00                             mov     al,[eax]
+ 0f9a  25 ff 00 00 00                    and     eax,000000ffH
+ 0f9f  89 c3             L150            mov     ebx,eax
+ 0fa1  83 f8 ff                          cmp     eax,0ffffffffH
+ 0fa4  0f 84 16 ff ff ff                 je      L144
+ 0faa  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 0fb0  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 0fb4  75 0b                             jne     L151
+ 0fb6  8b 42 14                          mov     eax,+14H[edx]
+ 0fb9  2b 42 04                          sub     eax,+4H[edx]
+ 0fbc  83 f8 01                          cmp     eax,00000001H
+ 0fbf  77 0f                             ja      L152
+ 0fc1  8b 15 00 00 00 00 L151            mov     edx,__iobuf near * near ofp
+ 0fc7  89 d8                             mov     eax,ebx
+ 0fc9  e8 00 00 00 00                    call    fputc_
+ 0fce  eb 3b                             jmp     L154
+ 0fd0  8b 02             L152            mov     eax,[edx]
+ 0fd2  88 18                             mov     [eax],bl
+ 0fd4  8b 02                             mov     eax,[edx]
+ 0fd6  8a 00                             mov     al,[eax]
+ 0fd8  25 ff 00 00 00                    and     eax,000000ffH
+ 0fdd  83 f8 0a                          cmp     eax,0000000aH
+ 0fe0  75 14                             jne     L153
+ 0fe2  e8 00 00 00 00                    call    fputc_
+ 0fe7  83 fb 23                          cmp     ebx,00000023H
+ 0fea  75 2e                             jne     L155
+ 0fec  e8 00 00 00 00                    call    void near passThroughPPD()
+ 0ff1  e9 63 ff ff ff                    jmp     L147
+ 0ff6  8a 6a 0d          L153            mov     ch,+0dH[edx]
+ 0ff9  8b 72 04                          mov     esi,+4H[edx]
+ 0ffc  8b 3a                             mov     edi,[edx]
+ 0ffe  80 cd 10                          or      ch,10H
+ 1001  46                                inc     esi
+ 1002  88 6a 0d                          mov     +0dH[edx],ch
+ 1005  47                                inc     edi
+ 1006  89 72 04                          mov     +4H[edx],esi
+ 1009  89 3a                             mov     [edx],edi
+ 100b  83 fb 23          L154            cmp     ebx,00000023H
+ 100e  75 0a                             jne     L155
+ 1010  e8 00 00 00 00                    call    void near passThroughPPD()
+ 1015  e9 3f ff ff ff                    jmp     L147
+ 101a  83 fb 3b          L155            cmp     ebx,0000003bH
+ 101d  0f 84 9d fe ff ff                 je      L144
+ 1023  e9 31 ff ff ff                    jmp     L147
+ 1028  8d 84 24 00 05 00 
+       00                L156            lea     eax,+500H[esp]
+ 102f  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 1035  e8 00 00 00 00                    call    fputs_
+ 103a  83 f8 ff                          cmp     eax,0ffffffffH
+ 103d  75 11                             jne     L157
+ 103f  b8 09 00 00 00                    mov     eax,offset L178
+ 1044  e8 00 00 00 00                    call    perror_
+ 1049  89 e8                             mov     eax,ebp
+ 104b  e8 00 00 00 00                    call    exit_
+ 1050  80 bc 24 00 05 00 
+       00 28             L157            cmp     byte ptr +500H[esp],28H
+ 1058  0f 85 62 fe ff ff                 jne     L144
+ 105e  31 c0             L158            xor     eax,eax
+ 1060  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 1065  8d 84 24 00 03 00 
+       00                                lea     eax,+300H[esp]
+ 106c  e8 00 00 00 00                    call    int near getToken( token near & )
+ 1071  83 f8 ff                          cmp     eax,0ffffffffH
+ 1074  0f 84 46 fe ff ff                 je      L144
+ 107a  8d 84 24 00 03 00 
+       00                                lea     eax,+300H[esp]
+ 1081  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 1087  e8 00 00 00 00                    call    fputs_
+ 108c  83 f8 ff                          cmp     eax,0ffffffffH
+ 108f  75 11                             jne     L159
+ 1091  b8 09 00 00 00                    mov     eax,offset L178
+ 1096  e8 00 00 00 00                    call    perror_
+ 109b  89 e8                             mov     eax,ebp
+ 109d  e8 00 00 00 00                    call    exit_
+ 10a2  31 c0             L159            xor     eax,eax
+ 10a4  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 10a9  8d 84 24 00 03 00 
+       00                                lea     eax,+300H[esp]
+ 10b0  e8 00 00 00 00                    call    int near getToken( token near & )
+ 10b5  83 f8 ff                          cmp     eax,0ffffffffH
+ 10b8  0f 84 02 fe ff ff                 je      L144
+ 10be  8d 84 24 00 02 00 
+       00                                lea     eax,+200H[esp]
+ 10c5  e8 00 00 00 00                    call    int near getToken( token near & )
+ 10ca  80 bc 24 00 02 00 
+       00 2c                             cmp     byte ptr +200H[esp],2cH
+ 10d2  0f 84 cd 00 00 00                 je      L166
+ 10d8  80 bc 24 00 02 00 
+       00 29             L160            cmp     byte ptr +200H[esp],29H
+ 10e0  0f 84 bf 00 00 00                 je      L166
+ 10e6  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 10ec  f6 42 0d 04                       test    byte ptr +0dH[edx],04H
+ 10f0  75 0b                             jne     L161
+ 10f2  8b 42 14                          mov     eax,+14H[edx]
+ 10f5  2b 42 04                          sub     eax,+4H[edx]
+ 10f8  83 f8 01                          cmp     eax,00000001H
+ 10fb  77 12                             ja      L162
+ 10fd  b8 20 00 00 00    L161            mov     eax,00000020H
+ 1102  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 1108  e8 00 00 00 00                    call    fputc_
+ 110d  eb 2f                             jmp     L164
+ 110f  8b 02             L162            mov     eax,[edx]
+ 1111  c6 00 20                          mov     byte ptr [eax],20H
+ 1114  8b 02                             mov     eax,[edx]
+ 1116  8a 00                             mov     al,[eax]
+ 1118  25 ff 00 00 00                    and     eax,000000ffH
+ 111d  83 f8 0a                          cmp     eax,0000000aH
+ 1120  75 07                             jne     L163
+ 1122  e8 00 00 00 00                    call    fputc_
+ 1127  eb 15                             jmp     L164
+ 1129  8a 7a 0d          L163            mov     bh,+0dH[edx]
+ 112c  8b 4a 04                          mov     ecx,+4H[edx]
+ 112f  8b 32                             mov     esi,[edx]
+ 1131  80 cf 10                          or      bh,10H
+ 1134  41                                inc     ecx
+ 1135  88 7a 0d                          mov     +0dH[edx],bh
+ 1138  46                                inc     esi
+ 1139  89 4a 04                          mov     +4H[edx],ecx
+ 113c  89 32                             mov     [edx],esi
+ 113e  8d 84 24 00 03 00 
+       00                L164            lea     eax,+300H[esp]
+ 1145  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 114b  e8 00 00 00 00                    call    fputs_
+ 1150  83 f8 ff                          cmp     eax,0ffffffffH
+ 1153  75 11                             jne     L165
+ 1155  b8 09 00 00 00                    mov     eax,offset L178
+ 115a  e8 00 00 00 00                    call    perror_
+ 115f  89 e8                             mov     eax,ebp
+ 1161  e8 00 00 00 00                    call    exit_
+ 1166  b9 40 00 00 00    L165            mov     ecx,00000040H
+ 116b  8d bc 24 00 03 00 
+       00                                lea     edi,+300H[esp]
+ 1172  8d b4 24 00 02 00 
+       00                                lea     esi,+200H[esp]
+ 1179  31 c0                             xor     eax,eax
+ 117b  f3 a5                             repe    movsd    
+ 117d  e8 00 00 00 00                    call    void near skipWhiteNL( int )
+ 1182  8d 84 24 00 02 00 
+       00                                lea     eax,+200H[esp]
+ 1189  e8 00 00 00 00                    call    int near getToken( token near & )
+ 118e  83 f8 ff                          cmp     eax,0ffffffffH
+ 1191  0f 84 29 fd ff ff                 je      L144
+ 1197  80 bc 24 00 02 00 
+       00 2c                             cmp     byte ptr +200H[esp],2cH
+ 119f  0f 85 33 ff ff ff                 jne     L160
+ 11a5  31 d2             L166            xor     edx,edx
+ 11a7  8a 94 24 00 03 00 
+       00                                mov     dl,+300H[esp]
+ 11ae  89 d0                             mov     eax,edx
+ 11b0  83 fa 61                          cmp     edx,00000061H
+ 11b3  7c 05                             jl      L167
+ 11b5  83 fa 7a                          cmp     edx,0000007aH
+ 11b8  7e 0f                             jle     L169
+ 11ba  83 f8 41          L167            cmp     eax,00000041H
+ 11bd  7c 05                             jl      L168
+ 11bf  83 f8 5a                          cmp     eax,0000005aH
+ 11c2  7e 05                             jle     L169
+ 11c4  83 f8 5f          L168            cmp     eax,0000005fH
+ 11c7  75 07                             jne     L170
+ 11c9  b8 01 00 00 00    L169            mov     eax,00000001H
+ 11ce  eb 02                             jmp     L171
+ 11d0  31 c0             L170            xor     eax,eax
+ 11d2  85 c0             L171            test    eax,eax
+ 11d4  75 28                             jne     L172
+ 11d6  8d 84 24 00 03 00 
+       00                                lea     eax,+300H[esp]
+ 11dd  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 11e3  e8 00 00 00 00                    call    fputs_
+ 11e8  83 f8 ff                          cmp     eax,0ffffffffH
+ 11eb  75 11                             jne     L172
+ 11ed  b8 09 00 00 00                    mov     eax,offset L178
+ 11f2  e8 00 00 00 00                    call    perror_
+ 11f7  89 e8                             mov     eax,ebp
+ 11f9  e8 00 00 00 00                    call    exit_
+ 11fe  8d 84 24 00 02 00 
+       00                L172            lea     eax,+200H[esp]
+ 1205  8b 15 00 00 00 00                 mov     edx,__iobuf near * near ofp
+ 120b  e8 00 00 00 00                    call    fputs_
+ 1210  83 f8 ff                          cmp     eax,0ffffffffH
+ 1213  75 11                             jne     L173
+ 1215  b8 09 00 00 00                    mov     eax,offset L178
+ 121a  e8 00 00 00 00                    call    perror_
+ 121f  89 e8                             mov     eax,ebp
+ 1221  e8 00 00 00 00                    call    exit_
+ 1226  80 bc 24 00 02 00 
+       00 29             L173            cmp     byte ptr +200H[esp],29H
+ 122e  0f 85 2a fe ff ff                 jne     L158
+ 1234  e9 87 fc ff ff                    jmp     L144
+
+                fclose(ifp);
+ 1239  a1 00 00 00 00    L174            mov     eax,__iobuf near * near ifp
+ 123e  e8 00 00 00 00                    call    fclose_
+
+                if(fclose(ofp)) writeError();
+        }
+
+ 1243  a1 00 00 00 00                    mov     eax,__iobuf near * near ofp
+ 1248  e8 00 00 00 00                    call    fclose_
+ 124d  85 c0                             test    eax,eax
+ 124f  74 14                             je      L175
+ 1251  b8 00 00 00 00                    mov     eax,offset L177
+ 1256  e8 00 00 00 00                    call    perror_
+ 125b  b8 ff ff ff ff                    mov     eax,0ffffffffH
+ 1260  e8 00 00 00 00                    call    exit_
+
+        return 0;
+ 1265  31 c0             L175            xor     eax,eax
+
+}
+
+ 1267  81 c4 00 06 00 00 L176            add     esp,00000600H
+ 126d  5d                                pop     ebp
+ 126e  5f                                pop     edi
+ 126f  5e                                pop     esi
+ 1270  59                                pop     ecx
+ 1271  5b                                pop     ebx
+ 1272  c3                                ret     
+
+No disassembly errors
+
+------------------------------------------------------------
+
+Segment: CONST  DWORD USE32  00000084 bytes  
+ 0000  70 70 6e 73 74 72 69 70 L177            - ppnstrip
+ 0008  00                                      - .
+ 0009  70 70 6e 73 74 72 69 70 L178            - ppnstrip
+ 0011  00                                      - .
+ 0012  74 79 70 65 64 65 66 00 L179            - typedef.
+ 001a  55 73 61 67 65 3a 20 70 L180            - Usage: p
+ 0022  70 6e 73 74 72 69 70 20                 - pnstrip 
+ 002a  3c 69 6e 66 69 6c 65 3e                 - <infile>
+ 0032  20 3c 6f 75 74 66 69 6c                 -  <outfil
+ 003a  65 3e 0a 00                             - e>..
+ 003e  72 74 00                L181            - rt.
+ 0041  70 70 6e 73 74 72 69 70 L182            - ppnstrip
+ 0049  3a 20 63 6f 75 6c 64 20                 - : could 
+ 0051  6e 6f 74 20 6f 70 65 6e                 - not open
+ 0059  20 27 25 73 27 0a 00                    -  '%s'..
+ 0060  77 74 00                L183            - wt.
+ 0063  70 70 6e 73 74 72 69 70 L184            - ppnstrip
+ 006b  3a 20 63 6f 75 6c 64 20                 - : could 
+ 0073  6e 6f 74 20 63 72 65 61                 - not crea
+ 007b  74 65 20 27 25 73 27 0a                 - te '%s'.
+ 0083  00                                      - .
+
+No disassembly errors
+
+------------------------------------------------------------
+
+Segment: _BSS  DWORD USE32  00000008 bytes  
+
+No disassembly errors
+
+------------------------------------------------------------
